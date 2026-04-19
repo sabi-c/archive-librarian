@@ -1,0 +1,6 @@
+requests>=2.31
+tqdm>=4.66
+img2pdf>=0.5
+pycryptodome>=3.19
+rich>=13.7
+tomli_w>=1.0

@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""archive-librarian — main CLI entry point.
+
+Commands:
+    librarian setup              Interactive walkthrough (run once)
+    librarian download <URL>     Download a book from archive.org
+    librarian list               Show your library
+    librarian status             Show credentials + config status
+    librarian creds set          Re-enter credentials only
+    librarian creds delete       Remove stored credentials
+    librarian help               Show this message
+"""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Make sibling modules importable regardless of how the script is invoked
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from config import get_library_dir, load_config
+from creds import get_credentials, set_credentials, delete_credentials, credentials_storage_label
+from downloader import download
+from library import all_books, book_count, total_size_mb
+
+
+def cmd_setup(_args) -> int:
+    from onboarding import run_onboarding
+    return run_onboarding()
+
+
+def cmd_download(args) -> int:
+    if not args.urls:
+        print("Usage: librarian download <archive.org URL> [<URL> ...]")
+        return 2
+    failed = 0
+    for url in args.urls:
+        ok, message = download(url, resolution=args.resolution)
+        prefix = "✓" if ok else "✗"
+        print(f"{prefix} {message}")
+        if not ok:
+            failed += 1
+    return 0 if failed == 0 else 1
+
+
+def cmd_list(_args) -> int:
+    books = all_books()
+    if not books:
+        print("Library is empty. Try: librarian download <URL>")
+        return 0
+    print(f"\n{book_count()} books, {total_size_mb()} MB total\n")
+    for b in books:
+        title = b.get("title", b.get("identifier", "unknown"))
+        size = b.get("pdf_size_mb", 0)
+        pages = b.get("page_count", 0)
+        downloaded = (b.get("downloaded_at") or "")[:10]
+        print(f"  • {title}")
+        print(f"      {size} MB · {pages} pages · {downloaded}")
+        print(f"      {b.get('url', '')}")
+    print()
+    return 0
+
+
+def cmd_status(_args) -> int:
+    cfg = load_config()
+    email, password = get_credentials()
+    print()
+    print(f"Library directory: {get_library_dir()}")
+    print(f"Resolution:        {cfg.get('resolution')} (0=best, higher=faster)")
+    print(f"Credential store:  {credentials_storage_label()}")
+    if email and password:
+        print(f"Credentials:       ✓ set ({email})")
+    else:
+        print(f"Credentials:       ✗ NOT SET — run `librarian setup`")
+    print(f"Books in library:  {book_count()} ({total_size_mb()} MB)")
+    print()
+    return 0 if email and password else 1
+
+
+def cmd_creds_set(_args) -> int:
+    import getpass
+    email = input("archive.org email: ").strip()
+    if not email:
+        return 1
+    password = getpass.getpass("archive.org password (hidden): ")
+    if not password:
+        return 1
+    if set_credentials(email, password):
+        print(f"✓ Saved credentials for {email}")
+        return 0
+    print("✗ Failed to save credentials")
+    return 1
+
+
+def cmd_creds_delete(_args) -> int:
+    if delete_credentials():
+        print("✓ Credentials removed")
+        return 0
+    print("✗ Failed to remove credentials")
+    return 1
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(
+        prog="librarian",
+        description="Download books from archive.org as PDFs.",
+    )
+    sub = p.add_subparsers(dest="cmd")
+
+    sub.add_parser("setup", help="Interactive first-run walkthrough")
+
+    p_dl = sub.add_parser("download", help="Download one or more books")
+    p_dl.add_argument("urls", nargs="+", help="archive.org URLs (e.g. https://archive.org/details/foo)")
+    p_dl.add_argument("-r", "--resolution", type=int, default=None,
+                      help="0=best quality, higher=faster (overrides config)")
+
+    sub.add_parser("list", help="List downloaded books")
+    sub.add_parser("status", help="Show credentials + config status")
+
+    p_creds = sub.add_parser("creds", help="Manage credentials")
+    creds_sub = p_creds.add_subparsers(dest="creds_cmd")
+    creds_sub.add_parser("set", help="Enter/update credentials")
+    creds_sub.add_parser("delete", help="Remove stored credentials")
+
+    args = p.parse_args()
+
+    if args.cmd is None or args.cmd in ("help", "-h", "--help"):
+        p.print_help()
+        return 0
+
+    handlers = {
+        "setup": cmd_setup,
+        "download": cmd_download,
+        "list": cmd_list,
+        "status": cmd_status,
+    }
+    if args.cmd == "creds":
+        if args.creds_cmd == "set":
+            return cmd_creds_set(args)
+        if args.creds_cmd == "delete":
+            return cmd_creds_delete(args)
+        p_creds.print_help()
+        return 0
+
+    return handlers[args.cmd](args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
