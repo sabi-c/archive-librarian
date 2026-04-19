@@ -225,36 +225,76 @@ class API:
     # --- Metadata enrichment (Open Library) --------------------------------
 
     def _enrich_last(self) -> None:
-        """After a successful download, hit Open Library for metadata."""
+        """After a successful download, fetch rich metadata from archive.org's own
+        metadata API (more reliable than Open Library for archive.org books)."""
         try:
             import requests
-            from library import all_books, save_catalog, load_catalog
+            from library import save_catalog, load_catalog
             cat = load_catalog()
             books = cat.get("books", [])
             if not books:
                 return
-            # Most recent book is last appended
             latest = books[-1]
             ident = latest.get("identifier", "")
             if not ident or latest.get("enriched"):
                 return
-            # Try Open Library by archive.org identifier
-            url = f"https://openlibrary.org/api/books?bibkeys=OLID:{ident}&format=json&jscmd=details"
-            try:
-                r = requests.get(url, timeout=10)
+            # archive.org metadata API returns everything in one shot
+            r = requests.get(f"https://archive.org/metadata/{ident}", timeout=10)
+            if r.status_code == 200:
                 data = r.json()
-                if data:
-                    key = list(data.keys())[0]
-                    details = data[key].get("details", {})
-                    latest["author"] = ", ".join(a.get("name", "") for a in details.get("authors", []))
-                    latest["year"] = details.get("publish_date", "")[:4]
-                    latest["subjects"] = (details.get("subjects") or [])[:8]
-            except Exception:
-                pass
+                meta = data.get("metadata", {})
+                # Title prefer real title over filename-derived
+                if meta.get("title"):
+                    latest["title"] = meta["title"]
+                # Authors / creators
+                creator = meta.get("creator")
+                if isinstance(creator, list):
+                    latest["author"] = ", ".join(creator)
+                elif creator:
+                    latest["author"] = creator
+                # Publication year
+                date = meta.get("date") or meta.get("year") or ""
+                if date:
+                    latest["year"] = str(date)[:4]
+                # Subjects — keep as list
+                subjects = meta.get("subject")
+                if isinstance(subjects, list):
+                    latest["subjects"] = subjects[:10]
+                elif subjects:
+                    latest["subjects"] = [s.strip() for s in subjects.split(";")][:10]
+                # Publisher + language for completeness
+                if meta.get("publisher"):
+                    latest["publisher"] = meta["publisher"] if isinstance(meta["publisher"], str) else (meta["publisher"][0] if meta["publisher"] else "")
+                if meta.get("language"):
+                    latest["language"] = meta["language"] if isinstance(meta["language"], str) else (meta["language"][0] if meta["language"] else "")
+                # Domain — heuristic from subjects (very rough first cut)
+                latest["domain"] = self._guess_domain(latest.get("subjects", []))
             latest["enriched"] = True
             save_catalog(cat)
-        except Exception:
+        except Exception as e:
+            # Silent — enrichment is best-effort
             pass
+
+    @staticmethod
+    def _guess_domain(subjects: list) -> str:
+        """Heuristic: bucket subjects into our 8 top-level domains."""
+        if not subjects:
+            return ""
+        text = " ".join(s.lower() for s in subjects)
+        rules = [
+            ("Philosophy", ["philosophy", "ethics", "metaphysics", "stoic", "buddhism", "religion", "spirituality", "tao", "zen"]),
+            ("Science", ["science", "physics", "biology", "chemistry", "psychedelic", "consciousness", "neurology", "drug", "lsd", "research"]),
+            ("Health", ["health", "medicine", "nutrition", "wellness", "psychology", "therapy", "anatomy", "fitness"]),
+            ("History", ["history", "war", "political", "biography", "memoir", "historical"]),
+            ("Tech", ["technology", "computing", "software", "internet", "engineering", "computer"]),
+            ("Business", ["business", "economics", "management", "finance", "leadership", "marketing"]),
+            ("Craft", ["art", "design", "music", "craft", "writing", "drawing", "literature"]),
+            ("Reference", ["dictionary", "encyclopedia", "reference", "handbook", "guide"]),
+        ]
+        for domain, keywords in rules:
+            if any(k in text for k in keywords):
+                return domain
+        return "Other"
 
     # --- Help / diagnostics ------------------------------------------------
 

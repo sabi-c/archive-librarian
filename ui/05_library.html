@@ -59,14 +59,8 @@
   </select>
 </div>
 
-<div class="filter-strip">
-  <button class="filter-chip active">All<span class="filter-chip-count">47</span></button>
-  <button class="filter-chip">Philosophy<span class="filter-chip-count">12</span></button>
-  <button class="filter-chip">Science<span class="filter-chip-count">9</span></button>
-  <button class="filter-chip">Health<span class="filter-chip-count">7</span></button>
-  <button class="filter-chip">History<span class="filter-chip-count">8</span></button>
-  <button class="filter-chip">Tech<span class="filter-chip-count">6</span></button>
-  <button class="filter-chip">Craft<span class="filter-chip-count">5</span></button>
+<div class="filter-strip" id="filter-strip">
+  <button class="filter-chip active" data-domain="">All<span class="filter-chip-count">—</span></button>
 </div>
 
 <div class="book-list">
@@ -150,16 +144,62 @@ function fmtDate(iso) {
   return d.toLocaleString('en-US', { month: 'short', day: '2-digit' });
 }
 let allBooks = [];
+let activeDomain = '';
+
+function buildAuthorLine(b) {
+  const parts = [];
+  if (b.author) parts.push(b.author);
+  if (b.year) parts.push(b.year);
+  if (b.publisher && !b.author) parts.push(b.publisher);
+  if (!parts.length) parts.push(b.identifier || '');
+  return parts.join(' · ');
+}
+
+function rebuildFilterChips() {
+  const counts = {};
+  allBooks.forEach(b => {
+    const d = b.domain || 'Unsorted';
+    counts[d] = (counts[d] || 0) + 1;
+  });
+  const strip = document.getElementById('filter-strip');
+  let html = `<button class="filter-chip ${activeDomain==='' ? 'active' : ''}" data-domain="">All<span class="filter-chip-count">${allBooks.length}</span></button>`;
+  const domains = Object.keys(counts).filter(d => d !== 'Unsorted').sort((a,b) => counts[b] - counts[a]);
+  domains.forEach(d => {
+    html += `<button class="filter-chip ${activeDomain===d ? 'active' : ''}" data-domain="${escapeHTML(d)}">${escapeHTML(d)}<span class="filter-chip-count">${counts[d]}</span></button>`;
+  });
+  if (counts['Unsorted']) {
+    html += `<button class="filter-chip ${activeDomain==='Unsorted' ? 'active' : ''}" data-domain="Unsorted">Unsorted<span class="filter-chip-count">${counts['Unsorted']}</span></button>`;
+  }
+  strip.innerHTML = html;
+  strip.querySelectorAll('.filter-chip').forEach(el => {
+    el.addEventListener('click', () => {
+      activeDomain = el.dataset.domain;
+      rebuildFilterChips();
+      render();
+    });
+  });
+}
+
 async function refresh() {
   const summary = await window.pywebview.api.library_summary();
-  document.querySelector('.lib-meta').innerHTML = `${summary.count} Volumes<br>${summary.total_mb} MB Total<br>~/Books/Archive`;
-  document.getElementById('footer-meta').textContent = summary.library_dir + ' · ' + summary.total_mb + ' MB';
   allBooks = await window.pywebview.api.library_books(500);
+  const domainCount = new Set(allBooks.map(b => b.domain).filter(d => d && d !== 'Unsorted')).size;
+  document.querySelector('.lib-meta').innerHTML = `${summary.count} Volumes<br>${summary.total_mb} MB Total<br>${domainCount || 0} Domains`;
+  document.getElementById('footer-meta').textContent = summary.library_dir + ' · ' + summary.total_mb + ' MB';
+  rebuildFilterChips();
   render();
 }
+
 function render() {
   const q = (document.querySelector('.search-input').value || '').toLowerCase();
-  const filtered = allBooks.filter(b => !q || (b.title || '').toLowerCase().includes(q) || (b.identifier || '').toLowerCase().includes(q));
+  const filtered = allBooks.filter(b => {
+    if (activeDomain && (b.domain || 'Unsorted') !== activeDomain) return false;
+    if (!q) return true;
+    return (b.title || '').toLowerCase().includes(q)
+      || (b.author || '').toLowerCase().includes(q)
+      || (b.identifier || '').toLowerCase().includes(q)
+      || (b.subjects || []).some(s => s.toLowerCase().includes(q));
+  });
   const list = document.querySelector('.book-list');
   if (!allBooks.length) {
     list.innerHTML = `
@@ -174,7 +214,7 @@ function render() {
   if (!filtered.length) {
     list.innerHTML = `
       <div class="no-results-state">
-        <div class="no-results-state-text">No volumes match '<strong>${escapeHTML(q)}</strong>'</div>
+        <div class="no-results-state-text">${q ? `No volumes match '<strong>${escapeHTML(q)}</strong>'` : `No volumes shelved under ${escapeHTML(activeDomain)} yet`}</div>
       </div>
     `;
     document.getElementById('lib-footer-meta').textContent = '0 books';
@@ -186,10 +226,10 @@ function render() {
       <div class="book-mini-cover"></div>
       <div class="book-meta">
         <div class="book-title">${escapeHTML((b.title || b.identifier || '').slice(0, 80))}</div>
-        <div class="book-author">${escapeHTML(b.identifier || '')}</div>
+        <div class="book-author">${escapeHTML(buildAuthorLine(b))}</div>
       </div>
-      <div class="book-domain">—</div>
-      <div class="book-pages">${b.pdf_size_mb ? b.pdf_size_mb + ' MB' : ''}</div>
+      <div class="book-domain">${escapeHTML(b.domain || '—')}</div>
+      <div class="book-pages">${b.page_count ? b.page_count + ' pp · ' : ''}${b.pdf_size_mb ? b.pdf_size_mb + ' MB' : ''}</div>
       <div class="book-date">${fmtDate(b.downloaded_at)}</div>
     </div>
   `).join('');
