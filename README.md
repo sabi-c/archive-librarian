@@ -2,7 +2,7 @@
 
 Download books from [archive.org](https://archive.org) as real PDFs you can keep on your computer — including the borrow-protected ones.
 
-**v2.0 — Risograph Edition.** Native Mac window with a custom riso-print aesthetic. Zero terminal commands. Built so anyone can use it.
+**v3.0 — Risograph Edition.** Native Mac window, custom riso-print aesthetic, real download progress, in-app help. Zero terminal commands. Built so anyone can use it.
 
 ---
 
@@ -36,16 +36,17 @@ Download books from [archive.org](https://archive.org) as real PDFs you can keep
 
 ## What it looks like
 
-A native Mac window in a custom riso-print aesthetic — deep blue ink on cream paper, halftone dot patterns, bold typography, editorial layout. Six screens covering the full flow:
+A native Mac window in a custom riso-print aesthetic — deep blue ink on cream paper, halftone dot patterns, bold typography, editorial layout. Seven screens covering the full flow:
 
 | Screen | What it does |
 |--------|-------------|
 | **Welcome** | First-launch unboxing with five-step setup outline |
 | **Login** | Email + password fields, live archive.org verification |
-| **Dashboard** | Library counter, recent downloads, primary download action |
-| **Downloading** | Live progress, the book itself rendered as a halftone cover |
-| **Library** | Full browse, search, click any book to open in macOS Preview |
-| **Settings** | Account, library folder, default quality, librarian behavior |
+| **Dashboard** | Library counter, real acquisition timeline, recent downloads, primary download action |
+| **Downloading** | Real-time progress (page count, percent, elapsed/remaining) with live acquisition log; failure state with retry |
+| **Library** | Full browse, live search, click any book to open in macOS Preview |
+| **Help** | Self-test (verifies credentials + reachability), 6 FAQs, keyboard shortcuts, copyable diagnostics |
+| **Settings** | Account, library folder, default quality, credentials management |
 
 ARIA the librarian is the structural presence throughout — quiet, never chatty, surfaces only on milestones.
 
