@@ -59,6 +59,66 @@ def info(title: str, message: str) -> None:
         input("Press Enter to continue...")
 
 
+def choose_button(
+    title: str,
+    message: str,
+    buttons: list[str],
+    default: str | None = None,
+) -> str | None:
+    """Multi-button dialog. Returns the button text clicked, or None on cancel.
+
+    macOS limits dialogs to 3 buttons; if more are passed, falls back to
+    `choose from list` for a proper menu.
+    """
+    if not _is_macos():
+        print(f"\n{title}\n{message}\n")
+        for i, b in enumerate(buttons, 1):
+            print(f"  {i}. {b}")
+        try:
+            n = int(input("Choose a number: "))
+            return buttons[n - 1]
+        except (ValueError, IndexError):
+            return None
+
+    if len(buttons) <= 3:
+        button_list = ", ".join(f'"{_escape(b)}"' for b in buttons)
+        default_clause = f' default button "{_escape(default or buttons[-1])}"'
+        script = f'''
+        try
+            set theBtn to button returned of (display dialog "{_escape(message)}" ¬
+                with title "{_escape(title)}" ¬
+                buttons {{{button_list}}}{default_clause} ¬
+                with icon note)
+            return theBtn
+        on error number -128
+            return "__CANCELLED__"
+        end try
+        '''
+        rc, out, _ = _osascript(script)
+        if rc != 0 or out == "__CANCELLED__":
+            return None
+        return out
+
+    # 4+ buttons: use choose from list
+    items = ", ".join(f'"{_escape(b)}"' for b in buttons)
+    default_clause = f' default items {{"{_escape(default or buttons[0])}"}}'
+    script = f'''
+    set theChoice to (choose from list {{{items}}} ¬
+        with title "{_escape(title)}" ¬
+        with prompt "{_escape(message)}"{default_clause} ¬
+        OK button name "Choose" cancel button name "Quit")
+    if theChoice is false then
+        return "__CANCELLED__"
+    else
+        return item 1 of theChoice as string
+    end if
+    '''
+    rc, out, _ = _osascript(script)
+    if rc != 0 or out == "__CANCELLED__":
+        return None
+    return out
+
+
 def confirm(title: str, message: str, default_yes: bool = True) -> bool:
     """Yes/No dialog. Returns True on Yes, False on No."""
     if _is_macos():

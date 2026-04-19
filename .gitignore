@@ -8,3 +8,10 @@ __pycache__/
 .archive-librarian/
 credentials
 *.MIGRATED
+
+# PyInstaller build artifacts
+build/
+dist/
+dmg-staging/
+*.dmg
+*.spec
