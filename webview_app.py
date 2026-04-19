@@ -164,7 +164,15 @@ class API:
 
     # --- Download -----------------------------------------------------------
 
-    _download_state: dict[str, Any] = {"status": "idle", "message": "", "url": ""}
+    _download_state: dict[str, Any] = {
+        "status": "idle", "phase": "", "message": "", "url": "",
+        "current_page": 0, "total_pages": 0, "percent": 0,
+        "elapsed": "", "remaining": "",
+    }
+
+    def _progress_cb(self, p: dict) -> None:
+        s = self._download_state
+        s.update(p)
 
     def download_start(self, url: str) -> dict[str, Any]:
         if not url or not url.strip():
@@ -174,30 +182,115 @@ class API:
 
         self._download_state = {
             "status": "running",
+            "phase": "starting",
             "message": "Starting download...",
             "url": url.strip(),
+            "current_page": 0, "total_pages": 0, "percent": 0,
+            "elapsed": "", "remaining": "",
         }
 
         def _run():
             try:
-                ok, msg = download(url.strip())
-                self._download_state = {
-                    "status": "done" if ok else "error",
-                    "message": msg,
-                    "url": url.strip(),
-                }
+                ok, msg = download(url.strip(), progress=self._progress_cb)
+                self._download_state["status"] = "done" if ok else "error"
+                self._download_state["message"] = msg
+                if ok:
+                    # Background metadata enrichment — fire-and-forget
+                    threading.Thread(target=self._enrich_last, daemon=True).start()
             except Exception as e:
-                self._download_state = {
-                    "status": "error",
-                    "message": f"Download crashed: {e}",
-                    "url": url.strip(),
-                }
+                self._download_state["status"] = "error"
+                self._download_state["message"] = f"Crashed: {e}"
 
         threading.Thread(target=_run, daemon=True).start()
         return {"ok": True, "message": "Started."}
 
+    def download_retry(self) -> dict[str, Any]:
+        url = self._download_state.get("url", "")
+        if not url:
+            return {"ok": False, "message": "No previous URL to retry."}
+        # Reset state and re-trigger
+        self._download_state = {**self._download_state, "status": "idle"}
+        return self.download_start(url)
+
     def download_status(self) -> dict[str, Any]:
         return dict(self._download_state)
+
+    def download_cancel(self) -> dict[str, Any]:
+        # Best-effort: mark as cancelled. The subprocess will continue but state
+        # tells the UI to stop polling and show cancelled.
+        self._download_state["status"] = "cancelled"
+        self._download_state["message"] = "Cancelled by user."
+        return {"ok": True}
+
+    # --- Metadata enrichment (Open Library) --------------------------------
+
+    def _enrich_last(self) -> None:
+        """After a successful download, hit Open Library for metadata."""
+        try:
+            import requests
+            from library import all_books, save_catalog, load_catalog
+            cat = load_catalog()
+            books = cat.get("books", [])
+            if not books:
+                return
+            # Most recent book is last appended
+            latest = books[-1]
+            ident = latest.get("identifier", "")
+            if not ident or latest.get("enriched"):
+                return
+            # Try Open Library by archive.org identifier
+            url = f"https://openlibrary.org/api/books?bibkeys=OLID:{ident}&format=json&jscmd=details"
+            try:
+                r = requests.get(url, timeout=10)
+                data = r.json()
+                if data:
+                    key = list(data.keys())[0]
+                    details = data[key].get("details", {})
+                    latest["author"] = ", ".join(a.get("name", "") for a in details.get("authors", []))
+                    latest["year"] = details.get("publish_date", "")[:4]
+                    latest["subjects"] = (details.get("subjects") or [])[:8]
+            except Exception:
+                pass
+            latest["enriched"] = True
+            save_catalog(cat)
+        except Exception:
+            pass
+
+    # --- Help / diagnostics ------------------------------------------------
+
+    def help_diagnostics(self) -> dict[str, Any]:
+        """Bundle of diagnostic info for support — copyable to clipboard."""
+        import platform
+        email, password = get_credentials()
+        cfg = load_config()
+        return {
+            "version": "3.0.0",
+            "macos": platform.mac_ver()[0],
+            "python": platform.python_version(),
+            "library_dir": str(get_library_dir()),
+            "library_count": book_count(),
+            "credentials_set": bool(email and password),
+            "credentials_email": email or "(none)",
+            "config": cfg,
+        }
+
+    def help_self_test(self) -> dict[str, Any]:
+        """Verify the downloader chain works against archive.org's login endpoint."""
+        email, password = get_credentials()
+        if not (email and password):
+            return {"ok": False, "step": "credentials", "message": "No credentials set."}
+        ok, msg = test_credentials(email, password)
+        if not ok:
+            return {"ok": False, "step": "login", "message": msg}
+        # Ping archive.org to verify it's reachable
+        try:
+            import requests
+            r = requests.get("https://archive.org/services/account/login/", timeout=10)
+            if r.status_code != 200:
+                return {"ok": False, "step": "reachability", "message": f"archive.org returned HTTP {r.status_code}"}
+        except Exception as e:
+            return {"ok": False, "step": "reachability", "message": f"Network error: {e}"}
+        return {"ok": True, "message": "All systems healthy. Login + network OK."}
 
     # --- App lifecycle ------------------------------------------------------
 

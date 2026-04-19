@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Help</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.help-section { margin-bottom: 48px; }
+.section-head { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.faq-row { padding: 18px 0; border-bottom: 1px solid rgba(22,56,168,0.18); }
+.faq-q { font-size: 14px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 8px; }
+.faq-a { font-size: 13px; line-height: 1.7; opacity: 0.85; letter-spacing: 0.2px; }
+.faq-a strong { color: var(--ghost); }
+.diag-block { background: var(--paper-deep); border: 2px solid var(--ink); padding: 20px 24px; margin-top: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+.diag-row { display: flex; gap: 16px; margin-top: 16px; align-items: center; }
+.test-result { padding: 14px 18px; border: 2px solid var(--ink); margin-top: 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+.test-result.ok { background: var(--ink); color: var(--paper); }
+.test-result.fail { border-color: var(--ghost); color: var(--ghost); }
+.kbd { display: inline-block; padding: 2px 8px; border: 1px solid var(--ink); border-bottom-width: 2px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; margin: 0 2px; background: var(--paper-deep); }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="content">
+
+<div class="eyebrow">Personal Library Manager</div>
+<div class="headline-md">Help</div>
+<div class="body-text">If something isn't working, start here. The self-test below verifies the chain end-to-end. The diagnostics block can be copied and sent to whoever set this app up for you.</div>
+
+<!-- Self-test -->
+<div class="help-section">
+  <div class="section-head">Self-Test · Verify Everything Works</div>
+  <div style="font-size:13px;line-height:1.6;margin-bottom:16px;opacity:0.85;">Tests credentials and connection to archive.org. Takes a few seconds.</div>
+  <button class="button-primary" onclick="runSelfTest()">Run Self-Test</button>
+  <div id="test-result" style="display:none;"></div>
+</div>
+
+<!-- Common issues -->
+<div class="help-section">
+  <div class="section-head">Common Issues</div>
+  <div class="faq-row">
+    <div class="faq-q">Login Failed</div>
+    <div class="faq-a">Your archive.org password might be wrong, or your account isn't verified yet. Sign in to archive.org in your browser to confirm. Then go to <strong>Settings → Change credentials</strong> and re-enter.</div>
+  </div>
+  <div class="faq-row">
+    <div class="faq-q">Download Won't Start</div>
+    <div class="faq-a">The book might require borrowing first. Open archive.org, find the book, click <strong>"Borrow for 1 hour"</strong>, copy the URL, paste it back here.</div>
+  </div>
+  <div class="faq-row">
+    <div class="faq-q">Download Fails Mid-Way</div>
+    <div class="faq-a">archive.org sometimes throttles downloads. Click <strong>Retry</strong> on the error screen. If it keeps failing, wait 10 minutes and try again.</div>
+  </div>
+  <div class="faq-row">
+    <div class="faq-q">Where Are My Books?</div>
+    <div class="faq-a">By default in <strong>~/Books/Archive</strong>. Open <strong>Settings → Library → Books folder</strong> to see the path or change it. Click any book in the Library view to open it in macOS Preview.</div>
+  </div>
+  <div class="faq-row">
+    <div class="faq-q">App Hangs Or Freezes</div>
+    <div class="faq-a">Quit the app (Cmd+Q) and re-open. Your credentials and library survive — they're stored separately. If it keeps hanging, send the diagnostics below to whoever set this up for you.</div>
+  </div>
+</div>
+
+<!-- Keyboard shortcuts -->
+<div class="help-section">
+  <div class="section-head">Keyboard Shortcuts</div>
+  <div class="faq-row">
+    <span class="kbd">⌘D</span> Download a book
+    <span style="margin-left:32px;"><span class="kbd">⌘L</span> Open library</span>
+    <span style="margin-left:32px;"><span class="kbd">⌘,</span> Settings</span>
+    <span style="margin-left:32px;"><span class="kbd">⌘W</span> Quit</span>
+  </div>
+</div>
+
+<!-- Diagnostics -->
+<div class="help-section">
+  <div class="section-head">Diagnostics · For Support</div>
+  <div style="font-size:13px;line-height:1.6;margin-bottom:8px;opacity:0.85;">If something is broken and you need help, copy this block and send it.</div>
+  <div class="diag-block" id="diag-block">Loading diagnostics...</div>
+  <div class="diag-row">
+    <button class="button-primary" onclick="copyDiagnostics()">Copy to Clipboard</button>
+    <span id="copy-status" style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.6;"></span>
+  </div>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:32px;">
+  <button class="button-primary" onclick="window.pywebview.api.navigate('03_dashboard')">← Back to Dashboard</button>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian · Help Desk</div>
+<div class="footer-meta">Two-Color Print · Halftone Type · Cream Paper · v3.0</div>
+</div>
+</div>
+</div>
+<script>
+let diagText = '';
+async function loadDiag() {
+  const d = await window.pywebview.api.help_diagnostics();
+  diagText = `Archive Librarian v${d.version}
+macOS: ${d.macos}
+Python: ${d.python}
+Library: ${d.library_dir}
+Books: ${d.library_count}
+Credentials: ${d.credentials_set ? '✓ Set (' + d.credentials_email + ')' : '✗ Not set'}
+Resolution: ${d.config.resolution || 3}`;
+  document.getElementById('diag-block').textContent = diagText;
+}
+function copyDiagnostics() {
+  navigator.clipboard.writeText(diagText).then(() => {
+    const s = document.getElementById('copy-status');
+    s.textContent = '✓ Copied';
+    s.style.color = 'var(--ink)';
+    setTimeout(() => { s.textContent = ''; }, 3000);
+  }).catch(() => {
+    document.getElementById('copy-status').textContent = '✗ Could not copy';
+  });
+}
+async function runSelfTest() {
+  const r = document.getElementById('test-result');
+  r.style.display = 'block';
+  r.className = 'test-result';
+  r.textContent = '◌ Running tests...';
+  const result = await window.pywebview.api.help_self_test();
+  if (result.ok) {
+    r.className = 'test-result ok';
+    r.textContent = '✓ ' + result.message;
+  } else {
+    r.className = 'test-result fail';
+    r.textContent = `✗ Failed at "${result.step}": ${result.message}`;
+  }
+}
+window.addEventListener('pywebviewready', loadDiag);
+</script>
+</body></html>

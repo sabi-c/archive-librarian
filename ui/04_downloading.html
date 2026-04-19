@@ -119,30 +119,94 @@ function identifier(url) {
   return m ? m[1] : url;
 }
 let pollHandle = null;
+let logLines = [];
+
+function addLog(t, msg, status='RUNNING') {
+  if (logLines.find(l => l.msg === msg)) return;
+  logLines.push({ time: t, msg, status });
+  const log = document.querySelector('.log-section');
+  log.innerHTML = `<div class="log-title">Acquisition Log</div>` +
+    logLines.slice(-6).map(l =>
+      `<div class="log-row"><span class="log-time">${l.time}</span><span class="log-msg">${l.msg}</span><span class="log-status">${l.status}</span></div>`
+    ).join('');
+}
+
 async function poll() {
   const s = await window.pywebview.api.download_status();
   const titleEl = document.querySelector('.now-title');
   const authorEl = document.querySelector('.now-author');
   if (s.url && titleEl) titleEl.textContent = identifier(s.url).replace(/_/g, ' ').replace(/-/g, ' ').toUpperCase();
   if (s.url && authorEl) authorEl.textContent = s.url;
+
+  // Real progress: update the progress bar fill width + text
+  const fill = document.querySelector('.progress-fill');
+  const progRow = document.querySelector('.progress-row');
+  if (s.percent !== undefined && s.percent > 0) {
+    fill.style.width = s.percent + '%';
+    progRow.innerHTML = `<span>Page ${s.current_page} of ${s.total_pages}</span><span>${s.percent}% · ${s.remaining || '—'} remaining</span>`;
+  } else if (s.phase === 'starting') {
+    progRow.innerHTML = `<span>Initialising...</span><span>—</span>`;
+  } else if (s.phase === 'authenticated' || s.phase === 'loaned') {
+    progRow.innerHTML = `<span>${s.message || 'Preparing...'}</span><span>—</span>`;
+  } else if (s.phase === 'saving') {
+    fill.style.width = '100%';
+    progRow.innerHTML = `<span>Assembling PDF</span><span>Almost done</span>`;
+  }
+
+  // Live log
+  const now = new Date().toLocaleTimeString('en-US', { hour12: false });
+  if (s.message) addLog(now, s.message, s.phase === 'error' ? 'FAIL' : 'OK');
+
   if (s.status === 'done') {
     clearInterval(pollHandle);
+    fill.style.width = '100%';
     const pill = document.getElementById('status-pill');
     pill.textContent = '✓ Complete';
     pill.className = 'status status-good';
-    setTimeout(() => window.pywebview.api.navigate('03_dashboard'), 2000);
+    setTimeout(() => window.pywebview.api.navigate('03_dashboard'), 2500);
   } else if (s.status === 'error') {
     clearInterval(pollHandle);
-    const pill = document.getElementById('status-pill');
-    pill.textContent = '✗ Failed';
-    pill.style.borderColor = 'var(--ghost)';
-    pill.style.color = 'var(--ghost)';
-    if (authorEl) authorEl.textContent = s.message;
+    showError(s.message);
+  } else if (s.status === 'cancelled') {
+    clearInterval(pollHandle);
+    setTimeout(() => window.pywebview.api.navigate('03_dashboard'), 1000);
   }
 }
+
+function showError(message) {
+  const pill = document.getElementById('status-pill');
+  pill.textContent = '✗ Failed';
+  pill.style.borderColor = 'var(--ghost)';
+  pill.style.color = 'var(--ghost)';
+  pill.style.background = 'var(--paper)';
+
+  // Replace progress section with error state
+  const errSection = document.createElement('div');
+  errSection.className = 'error-state';
+  errSection.style.cssText = 'border: 2px solid var(--ghost); padding: 24px; margin-top: 24px; background: var(--paper-deep);';
+  errSection.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ghost);margin-bottom:12px;">Proof Rejected</div>
+    <div style="font-size:14px;line-height:1.6;margin-bottom:20px;">${message}</div>
+    <div style="display:flex;gap:12px;">
+      <button class="button-primary" onclick="retry()" style="background:var(--ghost);">Retry Download</button>
+      <button class="button-secondary" onclick="window.pywebview.api.navigate('03_dashboard')">Back to Dashboard</button>
+      <button class="button-secondary" onclick="window.pywebview.api.navigate('07_help')">Get Help</button>
+    </div>
+  `;
+  document.querySelector('.progress-section').replaceWith(errSection);
+}
+
+async function retry() {
+  // Reset visual state and re-poll
+  location.reload();
+  setTimeout(async () => {
+    await window.pywebview.api.download_retry();
+  }, 200);
+}
+
 window.addEventListener('pywebviewready', () => {
   poll();
-  pollHandle = setInterval(poll, 1500);
+  pollHandle = setInterval(poll, 800);
 });
 </script>
 </body></html>
