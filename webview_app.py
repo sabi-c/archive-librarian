@@ -132,6 +132,30 @@ class API:
         )
         return books[:limit]
 
+    def library_timeline(self, months: int = 6) -> list[dict]:
+        """Books acquired per month for the last N months. Real data only."""
+        from datetime import datetime, timedelta
+        from collections import OrderedDict
+        now = datetime.utcnow()
+        # Build buckets for last N months, oldest first
+        buckets = OrderedDict()
+        for i in range(months - 1, -1, -1):
+            month_start = (now.replace(day=1) - timedelta(days=i * 30)).replace(day=1)
+            label = month_start.strftime("%b").upper()
+            buckets[month_start.strftime("%Y-%m")] = {"label": label, "count": 0}
+        for b in all_books():
+            ts = b.get("downloaded_at", "")
+            if not ts:
+                continue
+            try:
+                d = datetime.fromisoformat(ts.replace("Z", "+00:00").replace("+00:00", ""))
+                key = d.strftime("%Y-%m")
+                if key in buckets:
+                    buckets[key]["count"] += 1
+            except Exception:
+                continue
+        return list(buckets.values())
+
     def library_open(self) -> None:
         os.system(f'open "{get_library_dir()}"')
 

@@ -29,6 +29,18 @@ body {
     align-items: center;
     justify-content: center;
     padding: 40px 20px;
+    animation: page-fade-in 0.25s ease-out;
+}
+
+@keyframes page-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .container {
@@ -138,6 +150,7 @@ body {
     font-family: inherit;
 }
 .button-primary:hover { transform: translate(1px, 1px); box-shadow: 3px 3px 0 rgba(22, 56, 168, 0.15); }
+.button-primary:active { transform: scale(0.98) translate(2px, 2px); box-shadow: 2px 2px 0 rgba(22, 56, 168, 0.1); }
 
 .button-secondary {
     background: transparent;
@@ -170,9 +183,17 @@ body {
     color: var(--ink);
     outline: none;
     letter-spacing: 0.5px;
+    transition: all 0.15s ease;
 }
 .field-input::placeholder { opacity: 0.3; font-weight: 400; }
-.field-input:focus { border-bottom-color: var(--ghost); }
+.field-input:focus {
+    border-bottom-color: var(--ghost);
+    border-bottom-width: 3px;
+    box-shadow: 0 2px 4px rgba(22, 56, 168, 0.1);
+}
+/* PIXEL — terracotta ink caret on every text input. The smallest detail with
+   the biggest signal of intentionality. One line, every form everywhere. */
+input { caret-color: var(--ghost); }
 
 /* Divider */
 .divider {
@@ -203,3 +224,48 @@ body {
 }
 .footer-credit { font-weight: 700; margin-bottom: 8px; }
 .footer-meta { font-size: 10px; opacity: 0.5; }
+
+/* Empty state styling */
+.empty-state {
+    padding: 48px 24px;
+    text-align: center;
+    opacity: 0.6;
+}
+.empty-state-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><defs><pattern id="dots3" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="5" fill="%231638a8" opacity="0.6"/></pattern></defs><circle cx="60" cy="60" r="55" fill="none" stroke="%23c8543a" stroke-width="2"/><circle cx="60" cy="60" r="50" fill="url(%23dots3)"/></svg>');
+    background-size: contain;
+}
+.empty-state-text {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.3px;
+}
+
+/* Search-no-results state */
+.no-results-state {
+    padding: 48px 24px;
+    text-align: center;
+}
+.no-results-state-text {
+    font-size: 13px;
+    color: var(--ghost);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* Loading skeleton animation */
+@keyframes halftone-pulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+.skeleton-row {
+    animation: halftone-pulse 2s ease-in-out infinite;
+}

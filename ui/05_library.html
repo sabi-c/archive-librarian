@@ -161,8 +161,22 @@ function render() {
   const q = (document.querySelector('.search-input').value || '').toLowerCase();
   const filtered = allBooks.filter(b => !q || (b.title || '').toLowerCase().includes(q) || (b.identifier || '').toLowerCase().includes(q));
   const list = document.querySelector('.book-list');
+  if (!allBooks.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon"></div>
+        <div class="empty-state-text">No volumes catalogued yet—<br>your library begins with a single download.</div>
+      </div>
+    `;
+    document.getElementById('lib-footer-meta').textContent = '0 books';
+    return;
+  }
   if (!filtered.length) {
-    list.innerHTML = '<div class="book-row"><div class="book-num"></div><div class="book-mini-cover" style="opacity:0.3;"></div><div class="book-meta"><div class="book-title">No books yet.</div><div class="book-author">Download your first one from the dashboard.</div></div><div></div><div></div><div></div></div>';
+    list.innerHTML = `
+      <div class="no-results-state">
+        <div class="no-results-state-text">No volumes match '<strong>${escapeHTML(q)}</strong>'</div>
+      </div>
+    `;
     document.getElementById('lib-footer-meta').textContent = '0 books';
     return;
   }
@@ -184,6 +198,22 @@ function render() {
 window.addEventListener('pywebviewready', () => {
   refresh();
   document.querySelector('.search-input').addEventListener('input', render);
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'l') {
+      e.preventDefault();
+      window.pywebview.api.navigate('05_library');
+    } else if ((e.metaKey || e.ctrlKey) && e.key === ',') {
+      e.preventDefault();
+      window.pywebview.api.navigate('06_settings');
+    } else if ((e.metaKey || e.ctrlKey) && e.key === 'w') {
+      e.preventDefault();
+      window.pywebview.api.quit();
+    } else if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
+      e.preventDefault();
+      window.pywebview.api.navigate('04_downloading');
+    }
+  });
 });
 </script>
 </body></html>
