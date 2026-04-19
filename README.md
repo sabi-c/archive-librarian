@@ -1,132 +1,136 @@
-# archive-librarian
+# 📚 Archive Librarian
 
-Download books from [archive.org](https://archive.org) as real PDFs — including the borrow-protected ones — so you can read them offline and keep them in your own library.
+Download books from [archive.org](https://archive.org) as real PDFs you can keep on your computer — including the borrow-protected ones.
 
-Built for macOS. Works on Linux too. Friendly first-run setup, secure credential storage, dead-simple to use.
-
----
-
-## What this is
-
-archive.org and openlibrary.org have an enormous collection of digitized books. Most of them are **borrow-protected**: you can read them in the browser for 1 hour or 14 days, but you can't download them as a PDF.
-
-This tool downloads them as PDFs. Legally, in the sense that you have the same access via your archive.org account that the borrow flow grants you — this just produces a file you can keep instead of a 1-hour browser session.
-
-You'll need a free [archive.org account](https://archive.org/account/signup) (takes 30 seconds).
+**Built for non-technical users.** No Terminal commands. Just double-click.
 
 ---
 
-## Install (one command)
+## How to install (3 minutes, no Terminal needed)
+
+### Step 1 — Download
+
+Click the green **"Code"** button at the top of [this page](https://github.com/sabi-c/archive-librarian) → **"Download ZIP"**.
+
+Your Mac will save a file called `archive-librarian-main.zip` to your Downloads folder.
+
+### Step 2 — Unzip
+
+Double-click `archive-librarian-main.zip` in your Downloads folder. Mac will create an `archive-librarian-main` folder right next to it.
+
+### Step 3 — Move it somewhere permanent
+
+Drag the `archive-librarian-main` folder from Downloads into your **Documents** folder (or anywhere you'll remember). The app needs to live somewhere permanent — don't leave it in Downloads.
+
+### Step 4 — Install
+
+Open the folder and **double-click `Install Archive Librarian.command`**.
+
+A black window (Terminal) will open. Don't worry — text scrolling by is normal. The actual setup happens in friendly dialog boxes that pop up on top.
+
+> **First time only:** macOS may say "cannot be opened because it is from an unidentified developer." If so:
+>
+> - **Right-click** (or Control-click) the file → **Open** → click **Open** in the dialog
+> - This only happens the first time. After that you can just double-click.
+
+The installer will:
+
+- Check that Python is installed (offers to install it for you if not)
+- Set up the app
+- Add a "Download Book" shortcut to your Desktop
+- Walk you through entering your archive.org login through pop-up dialogs
+
+### Step 5 — Set up your archive.org account
+
+The wizard will ask if you have an archive.org account. If not, it'll open the [free signup page](https://archive.org/account/signup) for you. Sign up (takes 30 seconds), verify your email, then come back and click "OK."
+
+Then the wizard asks for your archive.org email and password. Type them in — your password is hidden as you type. Mac stores it securely in Keychain (the same place Safari saves your website passwords).
+
+The wizard tests your login against archive.org and shows a green "✓ Login confirmed" pop-up when it works.
+
+You're done.
+
+---
+
+## How to use it (every day)
+
+### Download a book
+
+**Double-click `Download Book`** on your Desktop.
+
+A pop-up asks for the archive.org URL. Paste it in. Click "Download." Wait a few minutes. Done — the book is saved as a PDF in your books folder.
+
+### How to find a borrowable book on archive.org
+
+1. Go to [archive.org](https://archive.org) in your browser
+2. Sign in (top right)
+3. Search for the book you want
+4. On the book's page, click the orange **"Borrow for 1 hour"** button
+5. The book opens in a reader — copy the URL from your browser's address bar
+6. Paste that URL into the "Download Book" pop-up
+
+That's it. The borrow-and-download cycle takes a few seconds; the actual download takes a few minutes depending on the book.
+
+### Where do my books go?
+
+By default: a folder called `Books/Archive` inside your home folder.
+
+You can change this during setup (the wizard asks) or anytime later by re-running the wizard.
+
+---
+
+## Things you might want to know
+
+### How is my password stored?
+
+In macOS **Keychain** — the same encrypted vault Safari uses for website passwords. It's never written to a plain text file or sent anywhere except to archive.org when you log in. To change or remove it, re-run the install command.
+
+### What if the download doesn't work?
+
+- **"Login failed"**: your password might be wrong. Try logging in to archive.org in your browser. If that works, re-run the installer to re-enter your password.
+- **"Book isn't borrowable"**: a few archive.org books need special access (academic accounts etc). Most books work. If a specific book doesn't, search for an alternate copy.
+- **Download hangs**: archive.org sometimes throttles. Cancel and retry.
+
+### How big are the books?
+
+Default quality is medium — about 50–150 MB per book, takes 3–5 minutes to download. Nice and readable, doesn't fill your hard drive.
+
+### Will this break with macOS updates?
+
+It uses standard macOS tools that have been stable for many years. The only thing that changes occasionally is Python — if a major Mac update breaks it, just re-download from this page and run the installer again.
+
+### How do I uninstall?
+
+- Drag the `archive-librarian-main` folder to the Trash
+- Drag `Download Book.command` from your Desktop to the Trash
+- Open the **Keychain Access** app (in Applications → Utilities), search for "archive.org," and delete the entry
+- Your downloaded books in `Books/Archive` are yours and stay put
+
+---
+
+## For the curious / technical
+
+If you'd rather use the Terminal directly:
 
 ```bash
-cd archive-librarian
-./install.sh
+librarian download <archive.org URL>    # download a book
+librarian list                          # see your library
+librarian status                        # check credentials
+librarian setup                         # re-run the wizard
+librarian creds set                     # change credentials
+librarian creds delete                  # remove credentials
 ```
 
-That script will:
-
-1. Check you have Python 3.11 or newer
-2. Set up an isolated Python environment for the tool
-3. Install dependencies
-4. Install a `librarian` command you can run from anywhere
-5. Walk you through credentials and a test download
-
-If `install.sh` says your install location isn't in your PATH, follow the on-screen instructions to add it to your shell config.
-
-### If you don't have Python 3.11+
-
-```bash
-brew install python@3.13
-```
-
-(Install [Homebrew](https://brew.sh) first if needed.)
-
----
-
-## How to use it
-
-### Grab a book
-
-1. Go to [archive.org](https://archive.org) and sign in
-2. Find a book you want
-3. Click **"Borrow for 1 hour"** on the book's page
-4. Once it opens in the reader, copy the URL from your browser
-5. In your terminal:
-
-```bash
-librarian download https://archive.org/details/SOMETHING
-```
-
-The PDF will land in your library folder (default: `~/Books/Archive`).
-
-### Other commands
-
-```bash
-librarian status              # Check credentials and config
-librarian list                # Show all downloaded books
-librarian download URL [URL]  # Download one or more books
-librarian setup               # Re-run the first-time setup walkthrough
-librarian creds set           # Update your credentials
-librarian creds delete        # Remove stored credentials
-```
-
-### Quality vs speed
-
-Default is medium quality (resolution 3) — about 50–150 MB per book and 3–5 minutes to download. For best quality:
-
-```bash
-librarian download URL --resolution 0
-```
-
-Resolution 0 is best (200–500 MB, 10–15 minutes). Higher numbers are faster and lower quality.
-
----
-
-## Where things live
-
-- **Books** — `~/Books/Archive/` (configurable)
-- **Catalog** — `~/Books/Archive/library.json` (auto-maintained)
-- **Config** — `~/.archive-librarian/config.toml`
-- **Credentials** — macOS Keychain (or `~/.archive-librarian/credentials` on Linux)
-
----
-
-## How credentials are stored
-
-On macOS, your password is stored in the system **Keychain** under the service name `archive.org`. It's encrypted at rest, the same way Safari and Mail store passwords. It's never written to a plaintext file or sent anywhere except to archive.org during login.
-
-On Linux, the password lives in `~/.archive-librarian/credentials` with file permissions `0600` (only you can read it).
-
-To change credentials: `librarian creds set`
-To remove them: `librarian creds delete`
-
----
-
-## Troubleshooting
-
-**"Login failed" or "credentials wrong"** — Run `librarian setup` and re-enter. Make sure you can log in to archive.org in a browser with the same email/password.
-
-**"librarian: command not found"** — The install script tried to put `librarian` in your PATH but might not have succeeded. Either fix your PATH (see install output) or run from the folder: `./librarian <command>`.
-
-**"This book isn't borrowable"** — Some archive.org books require special accounts (academic, partner libraries, etc.). This tool handles standard borrow books and openly-downloadable books, but not those with extra restrictions.
-
-**Download hangs partway** — archive.org sometimes throttles. Cancel (Ctrl-C) and retry. If it keeps happening, try lowering threads: edit `~/.archive-librarian/config.toml` and add `threads = 10`.
+The `librarian` command is installed by the setup script.
 
 ---
 
 ## Credits
 
-The actual download protocol — the AES decryption flow that turns archive.org's protected book pages into real PDF pages — is from [MiniGlome's Archive.org-Downloader](https://github.com/MiniGlome/Archive.org-Downloader). That's the file `archive-org-downloader.py` in this folder; everything else is the wrapping (CLI, credential management, onboarding, library catalog).
+The actual download protocol — the part that turns archive.org's protected book pages into real PDFs — comes from [MiniGlome's Archive.org-Downloader](https://github.com/MiniGlome/Archive.org-Downloader). The friendly Mac wrapper, dialogs, installer, and credential handling were built around it. See [ATTRIBUTION.md](ATTRIBUTION.md) for full details.
 
 ---
 
-## Removing it
+## Personal use only
 
-```bash
-rm -rf archive-librarian/
-rm -rf ~/.archive-librarian/
-librarian creds delete    # before removing the folder
-sudo rm /usr/local/bin/librarian   # or ~/.local/bin/librarian
-```
-
-Books in `~/Books/Archive/` are yours and stay put.
+This tool is for downloading books you have legitimate access to read via your free archive.org account. Don't redistribute downloaded copyrighted PDFs.
