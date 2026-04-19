@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Dashboard</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px; }
+.menu-buttons { display: flex; gap: 8px; }
+.icon-btn { width: 38px; height: 38px; border: 2px solid var(--ink); background: transparent; cursor: pointer; display: grid; place-items: center; font-weight: 900; font-size: 14px; color: var(--ink); }
+.icon-btn:hover { background: var(--ink); color: var(--paper); }
+.counter-block { display: inline-flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+.counter-text { font-size: 28px; font-weight: 800; letter-spacing: -1px; text-transform: uppercase; line-height: 1.2; }
+.counter-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; margin-top: 4px; }
+.activity-bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; align-items: end; height: 100px; margin-bottom: 16px; }
+.bar { background: var(--ink); position: relative; }
+.bar::after { content: attr(data-domain); position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 700; letter-spacing: 1px; opacity: 0.6; text-transform: uppercase; }
+.activity-section { margin-bottom: 56px; }
+.publication-index { margin-top: 20px; }
+.index-title { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 24px; }
+.book-entry { display: grid; grid-template-columns: 40px 1fr 100px; gap: 20px; align-items: baseline; padding: 16px 0; border-top: 1px solid var(--ink); }
+.book-entry:last-child { border-bottom: 1px solid var(--ink); }
+.entry-number { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+.entry-title { font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.entry-date { font-size: 11px; letter-spacing: 0.5px; text-align: right; opacity: 0.6; }
+.cta-row { display: flex; gap: 16px; margin-top: 32px; align-items: center; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="accent-bar accent-bottom-left"></div>
+<div class="content">
+
+<div class="top-row">
+  <div>
+    <div class="eyebrow">Personal Library Manager</div>
+    <div class="wordmark" style="font-size:60px;">ARCHIVE<br>LIBRARIAN</div>
+  </div>
+  <div class="menu-buttons">
+    <button class="icon-btn" title="Browse Library" onclick="window.pywebview.api.navigate('05_library')">≡</button>
+    <button class="icon-btn" title="Settings" onclick="window.pywebview.api.navigate('06_settings')">⚙</button>
+  </div>
+</div>
+
+<div class="counter-block">
+  <div class="halftone-circle"></div>
+  <div>
+    <div class="counter-text" id="book-count">—</div>
+    <div class="counter-label">Books in Archive</div>
+  </div>
+</div>
+
+<div class="cta-row">
+  <button class="button-primary" onclick="startDownload()">Download Book</button>
+  <button class="button-secondary" onclick="window.pywebview.api.navigate('05_library')">Browse Library</button>
+  <span id="status-pill" class="status status-good" style="margin-left:auto;">● Ready</span>
+</div>
+
+<div class="divider"></div>
+
+<div class="activity-section">
+  <div class="index-title">Library by Domain</div>
+  <div class="activity-bars">
+    <div class="bar" style="height:80%;" data-domain="Phil"></div>
+    <div class="bar" style="height:60%;" data-domain="Health"></div>
+    <div class="bar" style="height:95%;" data-domain="Science"></div>
+    <div class="bar" style="height:45%;" data-domain="Tech"></div>
+    <div class="bar" style="height:70%;" data-domain="History"></div>
+    <div class="bar" style="height:30%;" data-domain="Craft"></div>
+  </div>
+</div>
+
+<div class="publication-index">
+<div class="index-title">Recent Acquisitions</div>
+<div id="recent-list">
+  <div class="book-entry"><div class="entry-number">—</div><div class="entry-title" style="opacity:0.4;">Loading...</div><div class="entry-date"></div></div>
+</div>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian · Standing By</div>
+<div class="footer-meta" id="footer-meta">~/Books/Archive</div>
+</div>
+</div>
+</div>
+<script>
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleString('en-US', { month: 'short', day: '2-digit' });
+}
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+async function refresh() {
+  const summary = await window.pywebview.api.library_summary();
+  document.getElementById('book-count').textContent = String(summary.count).padStart(2, '0');
+  document.getElementById('footer-meta').textContent = summary.library_dir + ' · ' + summary.total_mb + ' MB total';
+  const books = await window.pywebview.api.library_books(5);
+  const list = document.getElementById('recent-list');
+  if (!books.length) {
+    list.innerHTML = '<div class="book-entry"><div class="entry-number">—</div><div class="entry-title" style="opacity:0.5;">Library is empty. Download your first book.</div><div class="entry-date"></div></div>';
+    return;
+  }
+  list.innerHTML = books.slice(0, 5).map((b, i) => `
+    <div class="book-entry" style="cursor:pointer;" onclick="window.pywebview.api.book_open('${b.pdf_path.replace(/'/g, "\\'")}');">
+      <div class="entry-number">${String(i+1).padStart(2, '0')}</div>
+      <div class="entry-title">${escapeHTML(b.title || b.identifier)}</div>
+      <div class="entry-date">${fmtDate(b.downloaded_at)}</div>
+    </div>
+  `).join('');
+}
+async function startDownload() {
+  const url = prompt('Paste an archive.org URL:\n\nLooks like: https://archive.org/details/SOMETHING');
+  if (!url) return;
+  const result = await window.pywebview.api.download_start(url);
+  if (result.ok) {
+    window.pywebview.api.navigate('04_downloading');
+  } else {
+    alert(result.message);
+  }
+}
+window.addEventListener('pywebviewready', refresh);
+</script>
+</body></html>

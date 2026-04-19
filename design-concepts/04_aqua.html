@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQUA POD — Archive Librarian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #e8e4d0 0%, #f5f1e0 50%, #ebe6d0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .presentation-backdrop {
+            width: 100%;
+            max-width: 950px;
+        }
+
+        /* Main Window Container */
+        .window {
+            background: #e8e8e8;
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+                        0 2px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ccc;
+        }
+
+        /* Title Bar - Brushed Metal */
+        .title-bar {
+            height: 28px;
+            background: linear-gradient(180deg,
+                #ffffff 0%,
+                #f8f8f8 2%,
+                #dcdcdc 48%,
+                #d8d8d8 50%,
+                #d0d0d0 98%,
+                #c8c8c8 100%);
+            border-bottom: 1px solid #999;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            position: relative;
+            gap: 8px;
+        }
+
+        /* Pinstripe pattern overlay on title bar */
+        .title-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.02) 1px,
+                rgba(0, 0, 0, 0.02) 2px
+            );
+            pointer-events: none;
+        }
+
+        /* Traffic lights */
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3),
+                        0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        .light.red {
+            background: radial-gradient(circle at 30% 30%, #ff5f57, #d63030);
+        }
+
+        .light.yellow {
+            background: radial-gradient(circle at 30% 30%, #ffbd2e, #cd9e2c);
+        }
+
+        .light.green {
+            background: radial-gradient(circle at 30% 30%, #28c940, #1fa830);
+        }
+
+        /* App Title */
+        .app-title {
+            flex: 1;
+            color: #333;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Close button area (cosmetic) */
+        .close-zone {
+            width: 12px;
+            height: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Content Area - Brushed Metal Background */
+        .content {
+            background: linear-gradient(180deg,
+                #f5f5f5 0%,
+                #f0f0f0 1%,
+                #e8e8e8 2%,
+                #e0e0e0 50%,
+                #d8d8d8 98%,
+                #d5d5d5 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Pinstripe pattern for content area */
+        .content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 1px,
+                rgba(255, 255, 255, 0.3) 1px,
+                rgba(255, 255, 255, 0.3) 2px,
+                transparent 2px,
+                transparent 3px,
+                rgba(0, 0, 0, 0.05) 3px,
+                rgba(0, 0, 0, 0.05) 4px
+            );
+            pointer-events: none;
+        }
+
+        .content-inner {
+            position: relative;
+            z-index: 1;
+            padding: 24px 28px;
+        }
+
+        /* Header Section */
+        .header {
+            margin-bottom: 28px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            color: #000;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 11px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .library-counter {
+            font-size: 14px;
+            color: #1e6bff;
+            font-weight: 600;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .counter-badge {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #1e6bff;
+            box-shadow: 0 0 3px rgba(30, 107, 255, 0.5);
+        }
+
+        /* Primary Action Button - The Lickable Aqua Candy Button */
+        .btn-primary {
+            display: inline-block;
+            padding: 12px 32px;
+            border-radius: 20px;
+            background: linear-gradient(180deg,
+                #4a9fff 0%,
+                #2e87ff 50%,
+                #1e6bff 100%);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #0f4ed1;
+            box-shadow: 0 2px 6px rgba(30, 107, 255, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                        inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+            transition: all 0.15s ease;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 45%;
+            background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.5) 0%,
+                rgba(255, 255, 255, 0.2) 60%,
+                transparent 100%);
+            border-radius: 20px 20px 0 0;
+            pointer-events: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(180deg,
+                #5ba8ff 0%,
+                #3d92ff 50%,
+                #2875ff 100%);
+            box-shadow: 0 3px 8px rgba(30, 107, 255, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            background: linear-gradient(180deg,
+                #2a74ff 0%,
+                #1e6bff 50%,
+                #155aee 100%);
+            box-shadow: 0 1px 4px rgba(30, 107, 255, 0.2),
+                        inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Secondary Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            background: linear-gradient(180deg,
+                #f8f8f8 0%,
+                #f0f0f0 50%,
+                #e8e8e8 100%);
+            color: #333;
+            border: 1px solid #999;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            transition: all 0.15s ease;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(180deg,
+                #ffffff 0%,
+                #f5f5f5 50%,
+                #efefef 100%);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-secondary:active {
+            background: linear-gradient(180deg,
+                #e8e8e8 0%,
+                #e0e0e0 50%,
+                #d8d8d8 100%);
+        }
+
+        /* Gear Icon */
+        .gear-icon {
+            display: inline-block;
+            margin-right: 4px;
+            position: relative;
+            top: 1px;
+        }
+
+        /* Status Indicator */
+        .status-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .status-led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #28c940, #1fa830);
+            box-shadow: 0 0 4px rgba(40, 201, 64, 0.5);
+        }
+
+        /* Recent Downloads Table */
+        .library-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+
+        .library-table thead {
+            background: linear-gradient(180deg,
+                #f0f0f0 0%,
+                #e8e8e8 100%);
+            border-bottom: 1px solid #ccc;
+        }
+
+        .library-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            color: #333;
+            font-weight: 600;
+            border-right: 1px solid #ddd;
+            background: linear-gradient(180deg,
+                #f8f8f8 0%,
+                #efefef 100%);
+        }
+
+        .library-table th:last-child {
+            border-right: none;
+        }
+
+        .library-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            background: #f5f5f5;
+        }
+
+        .library-table tbody tr:nth-child(even) {
+            background: linear-gradient(180deg,
+                #efefef 0%,
+                #e8e8e8 100%);
+        }
+
+        .library-table tbody tr:nth-child(even)::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 1px,
+                rgba(0, 0, 0, 0.02) 1px,
+                rgba(0, 0, 0, 0.02) 2px
+            );
+            pointer-events: none;
+        }
+
+        .library-table td {
+            padding: 11px 12px;
+            font-size: 12px;
+            color: #333;
+            border-right: 1px solid #ddd;
+        }
+
+        .library-table td:last-child {
+            border-right: none;
+        }
+
+        .library-table tbody tr:hover {
+            background: linear-gradient(180deg,
+                #e0e8ff 0%,
+                #d8e0ff 100%);
+        }
+
+        .book-title {
+            font-weight: 500;
+        }
+
+        .book-author {
+            color: #666;
+        }
+
+        .book-date {
+            color: #999;
+            font-size: 11px;
+        }
+
+        /* Sidebar - ARIA Identity */
+        .sidebar {
+            position: absolute;
+            bottom: 24px;
+            right: 28px;
+            text-align: center;
+        }
+
+        .aria-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,
+                #1e6bff 0%,
+                #2e87ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(30, 107, 255, 0.25),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .aria-label {
+            font-size: 10px;
+            color: #666;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .window {
+                border-radius: 8px;
+            }
+
+            .content-inner {
+                padding: 16px 20px;
+            }
+
+            .aria-badge {
+                width: 48px;
+                height: 48px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-backdrop">
+        <div class="window">
+            <!-- Title Bar -->
+            <div class="title-bar">
+                <div class="traffic-lights">
+                    <div class="light red"></div>
+                    <div class="light yellow"></div>
+                    <div class="light green"></div>
+                </div>
+                <div class="app-title">ARCHIVE LIBRARIAN</div>
+                <div class="close-zone"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content">
+                <div class="content-inner">
+                    <!-- Header -->
+                    <div class="header">
+                        <div class="header-title">Welcome to Your Library</div>
+                        <div class="header-subtitle">Curate, explore, and download the world's greatest books</div>
+                        <div class="library-counter">
+                            <div class="counter-badge"></div>
+                            47 BOOKS
+                        </div>
+                    </div>
+
+                    <!-- Primary Action -->
+                    <div style="margin-bottom: 24px;">
+                        <button class="btn-primary">
+                            <span class="btn-text">⬇ DOWNLOAD BOOK</span>
+                        </button>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="status-section">
+                        <div class="status-led"></div>
+                        <span>Library ready</span>
+                        <button class="btn-secondary">
+                            <span class="gear-icon">⚙</span>Preferences
+                        </button>
+                    </div>
+
+                    <!-- Recent Downloads Table -->
+                    <table class="library-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 45%;">Title</th>
+                                <th style="width: 30%;">Author</th>
+                                <th style="width: 25%;">Downloaded</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="book-title">The Tao Te Ching</span></td>
+                                <td><span class="book-author">Lao Tzu</span></td>
+                                <td><span class="book-date">Apr 14, 2026</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="book-title">Walden</span></td>
+                                <td><span class="book-author">Henry David Thoreau</span></td>
+                                <td><span class="book-date">Apr 12, 2026</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="book-title">Meditations</span></td>
+                                <td><span class="book-author">Marcus Aurelius</span></td>
+                                <td><span class="book-date">Apr 10, 2026</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="book-title">The Power of Now</span></td>
+                                <td><span class="book-author">Eckhart Tolle</span></td>
+                                <td><span class="book-date">Apr 8, 2026</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="book-title">Thus Spoke Zarathustra</span></td>
+                                <td><span class="book-author">Friedrich Nietzsche</span></td>
+                                <td><span class="book-date">Apr 6, 2026</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ARIA Badge (Librarian Identity) -->
+                    <div class="sidebar">
+                        <div class="aria-badge">A</div>
+                        <div class="aria-label">ARIA Librarian</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive Librarian — Jellybean Media Player Concept</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+            background: #0a0a0a;
+            background: radial-gradient(circle at 50% 30%, #1a1a1a 0%, #0a0a0a 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .presentation-frame {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .app-container {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px;
+
+            /* Jellybean shape - asymmetric organic blob */
+            background: linear-gradient(135deg, #a8f0c0 0%, #6ee89c 20%, #2dd47a 50%, #10a050 100%);
+            border-radius: 120px 180px 160px 100px / 160px 140px 120px 140px;
+
+            /* Glossy 3D glass dome effect */
+            box-shadow:
+                /* Outer shadow for depth */
+                0 40px 80px rgba(0, 0, 0, 0.6),
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                /* Inner rim-light on top-left */
+                inset -2px -2px 8px rgba(255, 255, 255, 0.3),
+                inset 2px 2px 12px rgba(0, 0, 0, 0.15),
+                /* Glossy highlight for dome curve */
+                inset -8px -15px 30px rgba(255, 255, 255, 0.25);
+
+            overflow: hidden;
+        }
+
+        .app-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header: Logo + Subtitle */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #003820;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            /* Glossy text effect */
+            background: linear-gradient(180deg, #ffffff 0%, #e8f5f0 50%, #003820 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: rgba(0, 56, 32, 0.7);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Main display panel - CRT-style inset */
+        .display-panel {
+            background: linear-gradient(135deg, #0a1a14 0%, #001a0f 50%, #002215 100%);
+            border-radius: 40px 50px 45px 35px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+
+            box-shadow:
+                inset 0 8px 20px rgba(0, 0, 0, 0.8),
+                inset 0 -4px 12px rgba(0, 0, 0, 0.6),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+
+            border: 1px solid rgba(127, 234, 255, 0.1);
+        }
+
+        .display-title {
+            font-size: 11px;
+            color: #7feaff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        .display-content {
+            display: space-between;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .library-stat {
+            font-size: 28px;
+            font-weight: 900;
+            color: #7feaff;
+            font-family: 'Monaco', 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(127, 234, 255, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .status-light {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #7feaff;
+            border-radius: 50%;
+            margin-left: 8px;
+            box-shadow: 0 0 8px #7feaff, 0 0 16px rgba(127, 234, 255, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 8px #7feaff, 0 0 16px rgba(127, 234, 255, 0.5); }
+            50% { opacity: 1; box-shadow: 0 0 12px #7feaff, 0 0 24px rgba(127, 234, 255, 0.8); }
+        }
+
+        /* Recent downloads section */
+        .recent-section {
+            margin-bottom: 28px;
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: rgba(0, 56, 32, 0.6);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .recent-item {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border-radius: 20px 25px 22px 18px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: #003820;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .recent-item:hover {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.12) 100%);
+            box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.15), 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .recent-title {
+            flex: 1;
+        }
+
+        .recent-size {
+            font-size: 10px;
+            color: rgba(0, 56, 32, 0.5);
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+
+        /* Primary action button */
+        .action-button {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(180deg, #ffffff 0%, #d4f8e8 40%, #2dd47a 100%);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+
+            font-size: 16px;
+            font-weight: 900;
+            color: #003820;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 20px rgba(0, 0, 0, 0.25),
+                inset 0 -3px 8px rgba(0, 0, 0, 0.1),
+                inset 0 2px 8px rgba(255, 255, 255, 0.3);
+
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: all 0.1s ease;
+        }
+
+        .action-button:before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 10%;
+            right: 10%;
+            height: 30%;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.6), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .action-button:active {
+            transform: translateY(2px);
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 -1px 4px rgba(0, 0, 0, 0.1),
+                inset 0 2px 6px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Footer controls */
+        .footer-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .icon-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #ffffff 0%, #e8f5f0 40%, #10a050 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #003820;
+            font-weight: bold;
+
+            box-shadow:
+                0 6px 16px rgba(0, 0, 0, 0.25),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.1),
+                inset 0 1px 4px rgba(255, 255, 255, 0.4);
+
+            position: relative;
+            overflow: hidden;
+            transition: all 0.1s ease;
+        }
+
+        .icon-button:before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 15%;
+            right: 15%;
+            height: 25%;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.5), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .icon-button:hover {
+            box-shadow:
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                inset 0 -2px 6px rgba(0, 0, 0, 0.1),
+                inset 0 1px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .icon-button:active {
+            transform: scale(0.95);
+            box-shadow:
+                0 3px 10px rgba(0, 0, 0, 0.2),
+                inset 0 -1px 3px rgba(0, 0, 0, 0.1),
+                inset 0 1px 3px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Librarian signature element - bottom right corner mark */
+        .librarian-mark {
+            position: absolute;
+            bottom: 12px;
+            right: 16px;
+            font-size: 18px;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-frame">
+        <div class="app-container">
+            <div class="app-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="logo">ARCHIVE LIBRARIAN</div>
+                    <div class="subtitle">Your Personal Book Vault</div>
+                </div>
+
+                <!-- Display Panel -->
+                <div class="display-panel">
+                    <div class="display-title">Library Status</div>
+                    <div class="display-content">
+                        <div>
+                            <div class="library-stat">47 BOOKS</div>
+                        </div>
+                        <div class="status-light"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Downloads -->
+                <div class="recent-section">
+                    <label class="section-label">Recent Downloads</label>
+                    <div class="recent-list">
+                        <div class="recent-item">
+                            <span class="recent-title">The Tao Te Ching</span>
+                            <span class="recent-size">2.3 MB</span>
+                        </div>
+                        <div class="recent-item">
+                            <span class="recent-title">Walden by Henry David Thoreau</span>
+                            <span class="recent-size">3.8 MB</span>
+                        </div>
+                        <div class="recent-item">
+                            <span class="recent-title">Meditations by Marcus Aurelius</span>
+                            <span class="recent-size">1.9 MB</span>
+                        </div>
+                        <div class="recent-item">
+                            <span class="recent-title">The Power of Now</span>
+                            <span class="recent-size">4.2 MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary Action -->
+                <button class="action-button">➕ Download Book</button>
+
+                <!-- Footer Controls -->
+                <div class="footer-controls">
+                    <button class="icon-button" title="Settings">⚙</button>
+                    <button class="icon-button" title="Refresh">🔄</button>
+                    <button class="icon-button" title="Info">ℹ</button>
+                </div>
+            </div>
+
+            <!-- Librarian signature -->
+            <div class="librarian-mark">📚</div>
+        </div>
+    </div>
+</body>
+</html>

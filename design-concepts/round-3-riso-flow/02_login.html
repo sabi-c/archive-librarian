@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Login</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.progress-strip { display: flex; gap: 6px; margin-bottom: 48px; }
+.progress-cell { height: 6px; flex: 1; background: rgba(22,56,168,0.15); }
+.progress-cell.active { background: var(--ink); }
+.form-block { max-width: 540px; margin-top: 32px; }
+.security-note { display: flex; gap: 16px; margin-top: 32px; padding: 20px 24px; border: 2px solid var(--ink); background: var(--paper-deep); }
+.security-note-mark { font-size: 24px; font-weight: 900; line-height: 1; }
+.security-note-text { font-size: 12px; line-height: 1.6; opacity: 0.8; letter-spacing: 0.3px; }
+.security-note-text strong { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; opacity: 1; }
+.cta-row { display: flex; gap: 16px; margin-top: 48px; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="content">
+<div class="eyebrow">Setup · Movement 02</div>
+<div class="headline-md">Sign In To<br>Archive.org</div>
+<div class="body-text">Your password is stored encrypted in your Mac's Keychain — the same place Safari saves your website passwords. Never written to a plain file. Never sent anywhere except archive.org.</div>
+
+<div class="progress-strip">
+  <div class="progress-cell active"></div>
+  <div class="progress-cell active"></div>
+  <div class="progress-cell"></div>
+  <div class="progress-cell"></div>
+  <div class="progress-cell"></div>
+</div>
+
+<div class="form-block">
+  <div class="field">
+    <label class="field-label">Email Address</label>
+    <input class="field-input" type="email" placeholder="name@archive.org" value="">
+  </div>
+  <div class="field">
+    <label class="field-label">Password</label>
+    <input class="field-input" type="password" placeholder="•••••••••••" value="">
+  </div>
+</div>
+
+<div class="security-note">
+  <div class="security-note-mark">●●●</div>
+  <div class="security-note-text">
+    <strong>Storage</strong>
+    macOS Keychain (system-encrypted). Run <em>librarian creds delete</em> any time to remove.
+  </div>
+</div>
+
+<div class="cta-row">
+  <button class="button-primary">Verify &amp; Continue</button>
+  <button class="button-secondary">Need an Account?</button>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian</div>
+<div class="footer-meta">Setup In Progress · Step 2 of 5</div>
+</div>
+</div>
+</div>
+</body></html>

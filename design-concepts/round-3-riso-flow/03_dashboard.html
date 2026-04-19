@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Dashboard</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px; }
+.menu-buttons { display: flex; gap: 8px; }
+.icon-btn { width: 38px; height: 38px; border: 2px solid var(--ink); background: transparent; cursor: pointer; display: grid; place-items: center; font-weight: 900; font-size: 14px; color: var(--ink); }
+.icon-btn:hover { background: var(--ink); color: var(--paper); }
+.counter-block { display: inline-flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+.counter-text { font-size: 28px; font-weight: 800; letter-spacing: -1px; text-transform: uppercase; line-height: 1.2; }
+.counter-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; margin-top: 4px; }
+.activity-bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; align-items: end; height: 100px; margin-bottom: 16px; }
+.bar { background: var(--ink); position: relative; }
+.bar::after { content: attr(data-domain); position: absolute; bottom: -22px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 700; letter-spacing: 1px; opacity: 0.6; text-transform: uppercase; }
+.activity-section { margin-bottom: 56px; }
+.publication-index { margin-top: 20px; }
+.index-title { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 24px; }
+.book-entry { display: grid; grid-template-columns: 40px 1fr 100px; gap: 20px; align-items: baseline; padding: 16px 0; border-top: 1px solid var(--ink); }
+.book-entry:last-child { border-bottom: 1px solid var(--ink); }
+.entry-number { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+.entry-title { font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.entry-date { font-size: 11px; letter-spacing: 0.5px; text-align: right; opacity: 0.6; }
+.cta-row { display: flex; gap: 16px; margin-top: 32px; align-items: center; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="accent-bar accent-bottom-left"></div>
+<div class="content">
+
+<div class="top-row">
+  <div>
+    <div class="eyebrow">Personal Library Manager</div>
+    <div class="wordmark" style="font-size:60px;">ARCHIVE<br>LIBRARIAN</div>
+  </div>
+  <div class="menu-buttons">
+    <button class="icon-btn" title="Browse Library">≡</button>
+    <button class="icon-btn" title="Settings">⚙</button>
+  </div>
+</div>
+
+<div class="counter-block">
+  <div class="halftone-circle"></div>
+  <div>
+    <div class="counter-text">47</div>
+    <div class="counter-label">Books in Archive</div>
+  </div>
+</div>
+
+<div class="cta-row">
+  <button class="button-primary">Download Book</button>
+  <button class="button-secondary">Browse Library</button>
+  <span class="status status-good" style="margin-left:auto;">● Ready</span>
+</div>
+
+<div class="divider"></div>
+
+<div class="activity-section">
+  <div class="index-title">Library by Domain</div>
+  <div class="activity-bars">
+    <div class="bar" style="height:80%;" data-domain="Phil"></div>
+    <div class="bar" style="height:60%;" data-domain="Health"></div>
+    <div class="bar" style="height:95%;" data-domain="Science"></div>
+    <div class="bar" style="height:45%;" data-domain="Tech"></div>
+    <div class="bar" style="height:70%;" data-domain="History"></div>
+    <div class="bar" style="height:30%;" data-domain="Craft"></div>
+  </div>
+</div>
+
+<div class="publication-index">
+<div class="index-title">Recent Acquisitions</div>
+<div class="book-entry"><div class="entry-number">01</div><div class="entry-title">The Tao Te Ching</div><div class="entry-date">Apr 14</div></div>
+<div class="book-entry"><div class="entry-number">02</div><div class="entry-title">Walden</div><div class="entry-date">Apr 12</div></div>
+<div class="book-entry"><div class="entry-number">03</div><div class="entry-title">Meditations by Marcus Aurelius</div><div class="entry-date">Apr 08</div></div>
+<div class="book-entry"><div class="entry-number">04</div><div class="entry-title">The Power of Now</div><div class="entry-date">Apr 05</div></div>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian · Standing By</div>
+<div class="footer-meta">Last download · Apr 14 · Library Health · Healthy</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive Librarian – SWIRL Design</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #1c4ba0 0%, #0f3270 50%, #1c4ba0 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Canvas texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 2px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 950px;
+      padding: 60px 40px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .swirl-logo {
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SVG dot-swirl */
+    svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.3));
+    }
+
+    .wordmark {
+      font-weight: 900;
+      font-size: 56px;
+      letter-spacing: -1.5px;
+      color: #ffffff;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .tagline {
+      font-size: 14px;
+      letter-spacing: 0.8px;
+      color: #f4ecd6;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #ffffff;
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .action-section {
+      margin-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .button-primary {
+      background: #ffffff;
+      color: #1c4ba0;
+      padding: 16px 48px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      transition: all 0.2s ease;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .button-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+
+    .button-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+
+    .counter {
+      font-size: 14px;
+      color: #f4ecd6;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .divider {
+      width: 200px;
+      height: 1px;
+      background: rgba(255,255,255,0.2);
+      margin: 40px auto;
+    }
+
+    .recent-section {
+      margin-top: 60px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .recent-title {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .recent-list {
+      list-style: none;
+    }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+
+    .recent-item:last-child {
+      border-bottom: none;
+    }
+
+    .recent-number {
+      font-weight: 900;
+      width: 32px;
+      color: #f4ecd6;
+      text-align: right;
+      margin-right: 24px;
+      font-size: 13px;
+      letter-spacing: -0.5px;
+    }
+
+    .recent-title-text {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .recent-date {
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      margin-left: 16px;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 80px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .wordmark {
+        font-size: 42px;
+      }
+
+      .swirl-logo {
+        width: 220px;
+        height: 220px;
+      }
+
+      .button-primary {
+        padding: 14px 40px;
+        font-size: 16px;
+      }
+
+      .container {
+        padding: 40px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="swirl-logo">
+        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <style>
+              .swirl-dot { fill: #ffffff; }
+            </style>
+          </defs>
+
+          <!-- Outer ring: large dots (12 positions) -->
+          <circle class="swirl-dot" cx="140" cy="30" r="10" />
+          <circle class="swirl-dot" cx="193" cy="40" r="9.5" />
+          <circle class="swirl-dot" cx="235" cy="73" r="9" />
+          <circle class="swirl-dot" cx="250" cy="125" r="9.5" />
+          <circle class="swirl-dot" cx="235" cy="177" r="10" />
+          <circle class="swirl-dot" cx="180" cy="230" r="9" />
+          <circle class="swirl-dot" cx="120" cy="250" r="9.5" />
+          <circle class="swirl-dot" cx="60" cy="240" r="9" />
+          <circle class="swirl-dot" cx="25" cy="185" r="10" />
+          <circle class="swirl-dot" cx="15" cy="125" r="9.5" />
+          <circle class="swirl-dot" cx="35" cy="65" r="9" />
+          <circle class="swirl-dot" cx="95" cy="25" r="9.5" />
+
+          <!-- Second ring: medium-large dots (16 positions) -->
+          <circle class="swirl-dot" cx="140" cy="55" r="7.5" />
+          <circle class="swirl-dot" cx="190" cy="68" r="7" />
+          <circle class="swirl-dot" cx="220" cy="95" r="7.5" />
+          <circle class="swirl-dot" cx="235" cy="130" r="7" />
+          <circle class="swirl-dot" cx="220" cy="165" r="7.5" />
+          <circle class="swirl-dot" cx="180" cy="200" r="7" />
+          <circle class="swirl-dot" cx="130" cy="215" r="7.5" />
+          <circle class="swirl-dot" cx="80" cy="205" r="7" />
+          <circle class="swirl-dot" cx="50" cy="170" r="7.5" />
+          <circle class="swirl-dot" cx="40" cy="130" r="7" />
+          <circle class="swirl-dot" cx="55" cy="90" r="7.5" />
+          <circle class="swirl-dot" cx="95" cy="60" r="7" />
+          <circle class="swirl-dot" cx="140" cy="50" r="6.5" />
+          <circle class="swirl-dot" cx="175" cy="62" r="6.5" />
+          <circle class="swirl-dot" cx="205" cy="90" r="6.5" />
+          <circle class="swirl-dot" cx="213" cy="130" r="6.5" />
+
+          <!-- Third ring: medium dots (20 positions) -->
+          <circle class="swirl-dot" cx="140" cy="80" r="5.5" />
+          <circle class="swirl-dot" cx="175" cy="93" r="5" />
+          <circle class="swirl-dot" cx="200" cy="115" r="5.5" />
+          <circle class="swirl-dot" cx="210" cy="145" r="5" />
+          <circle class="swirl-dot" cx="200" cy="170" r="5.5" />
+          <circle class="swirl-dot" cx="165" cy="185" r="5" />
+          <circle class="swirl-dot" cx="130" cy="190" r="5.5" />
+          <circle class="swirl-dot" cx="95" cy="175" r="5" />
+          <circle class="swirl-dot" cx="70" cy="155" r="5.5" />
+          <circle class="swirl-dot" cx="60" cy="125" r="5" />
+          <circle class="swirl-dot" cx="70" cy="95" r="5.5" />
+          <circle class="swirl-dot" cx="100" cy="80" r="5" />
+          <circle class="swirl-dot" cx="140" cy="75" r="4.5" />
+          <circle class="swirl-dot" cx="168" cy="85" r="4.5" />
+          <circle class="swirl-dot" cx="190" cy="108" r="4.5" />
+          <circle class="swirl-dot" cx="200" cy="135" r="4.5" />
+          <circle class="swirl-dot" cx="190" cy="160" r="4.5" />
+          <circle class="swirl-dot" cx="160" cy="175" r="4.5" />
+          <circle class="swirl-dot" cx="130" cy="180" r="4.5" />
+          <circle class="swirl-dot" cx="100" cy="170" r="4.5" />
+
+          <!-- Inner ring: small dots (24 positions, tighter) -->
+          <circle class="swirl-dot" cx="140" cy="110" r="3.5" />
+          <circle class="swirl-dot" cx="158" cy="118" r="3" />
+          <circle class="swirl-dot" cx="170" cy="130" r="3.5" />
+          <circle class="swirl-dot" cx="175" cy="145" r="3" />
+          <circle class="swirl-dot" cx="170" cy="160" r="3.5" />
+          <circle class="swirl-dot" cx="155" cy="170" r="3" />
+          <circle class="swirl-dot" cx="140" cy="175" r="3.5" />
+          <circle class="swirl-dot" cx="125" cy="170" r="3" />
+          <circle class="swirl-dot" cx="110" cy="160" r="3.5" />
+          <circle class="swirl-dot" cx="105" cy="145" r="3" />
+          <circle class="swirl-dot" cx="110" cy="130" r="3.5" />
+          <circle class="swirl-dot" cx="125" cy="118" r="3" />
+          <circle class="swirl-dot" cx="140" cy="108" r="2.5" />
+          <circle class="swirl-dot" cx="152" cy="113" r="2.5" />
+          <circle class="swirl-dot" cx="162" cy="123" r="2.5" />
+          <circle class="swirl-dot" cx="167" cy="138" r="2.5" />
+          <circle class="swirl-dot" cx="162" cy="153" r="2.5" />
+          <circle class="swirl-dot" cx="152" cy="163" r="2.5" />
+          <circle class="swirl-dot" cx="140" cy="168" r="2.5" />
+          <circle class="swirl-dot" cx="128" cy="163" r="2.5" />
+          <circle class="swirl-dot" cx="118" cy="153" r="2.5" />
+          <circle class="swirl-dot" cx="113" cy="138" r="2.5" />
+          <circle class="swirl-dot" cx="118" cy="123" r="2.5" />
+          <circle class="swirl-dot" cx="128" cy="113" r="2.5" />
+
+          <!-- Center dots -->
+          <circle class="swirl-dot" cx="140" cy="140" r="4" />
+          <circle class="swirl-dot" cx="140" cy="140" r="1.5" opacity="0.6" />
+        </svg>
+      </div>
+
+      <h1 class="wordmark">Archive<br>Librarian</h1>
+      <p class="tagline">Conversation Preservation Engine</p>
+
+      <div class="status">
+        <span class="status-dot"></span>
+        <span>Ready to Archive</span>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <button class="button-primary">Download Book</button>
+      <div class="counter">47 Books Preserved</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="recent-section">
+      <h2 class="recent-title">Recent Downloads</h2>
+      <ul class="recent-list">
+        <li class="recent-item">
+          <span class="recent-number">01</span>
+          <span class="recent-title-text">The Tao Te Ching</span>
+          <span class="recent-date">Apr 14</span>
+        </li>
+        <li class="recent-item">
+          <span class="recent-number">02</span>
+          <span class="recent-title-text">Walden</span>
+          <span class="recent-date">Apr 12</span>
+        </li>
+        <li class="recent-item">
+          <span class="recent-number">03</span>
+          <span class="recent-title-text">Meditations</span>
+          <span class="recent-date">Apr 10</span>
+        </li>
+        <li class="recent-item">
+          <span class="recent-number">04</span>
+          <span class="recent-title-text">The Power of Now</span>
+          <span class="recent-date">Apr 08</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-note">
+      ARIA / Archive Intelligence – A Librarian Agent
+    </div>
+  </div>
+</body>
+</html>

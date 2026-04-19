@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Settings</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.settings-section { margin-bottom: 56px; }
+.section-head { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.setting-row { display: grid; grid-template-columns: 200px 1fr auto; gap: 24px; padding: 20px 0; border-bottom: 1px solid rgba(22,56,168,0.2); align-items: center; }
+.setting-label { font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.setting-value { font-size: 14px; opacity: 0.85; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.3px; }
+.setting-desc { font-size: 11px; opacity: 0.55; margin-top: 4px; letter-spacing: 0.3px; }
+.setting-action { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 8px 14px; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+.setting-action:hover { background: var(--ink); color: var(--paper); }
+.setting-action.danger { border-color: var(--ghost); color: var(--ghost); }
+.setting-action.danger:hover { background: var(--ghost); color: var(--paper); }
+
+.toggle-row { display: flex; align-items: center; gap: 12px; }
+.toggle { width: 44px; height: 24px; border: 2px solid var(--ink); position: relative; cursor: pointer; }
+.toggle-on { background: var(--ink); }
+.toggle-knob { position: absolute; top: 2px; width: 16px; height: 16px; background: var(--paper); border: 1px solid var(--ink); transition: left 0.2s; }
+.toggle-on .toggle-knob { left: 22px; }
+.toggle-off .toggle-knob { left: 2px; background: var(--ink); }
+
+.about-block { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
+.about-cell { padding: 24px; border: 2px solid var(--ink); }
+.about-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px; }
+.about-value { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="content">
+
+<div class="eyebrow">Personal Library Manager</div>
+<div class="headline-md">Settings</div>
+
+<!-- Account -->
+<div class="settings-section">
+  <div class="section-head">Archive.org Account</div>
+  <div class="setting-row">
+    <div class="setting-label">Signed In As</div>
+    <div>
+      <div class="setting-value">sbstn.idea@gmail.com</div>
+      <div class="setting-desc">Verified · Last login OK · Stored in macOS Keychain</div>
+    </div>
+    <button class="setting-action">Change</button>
+  </div>
+  <div class="setting-row">
+    <div class="setting-label">Credentials</div>
+    <div>
+      <div class="setting-value">macOS Keychain</div>
+      <div class="setting-desc">Encrypted by system, not visible to other apps</div>
+    </div>
+    <button class="setting-action danger">Delete</button>
+  </div>
+</div>
+
+<!-- Library -->
+<div class="settings-section">
+  <div class="section-head">Library</div>
+  <div class="setting-row">
+    <div class="setting-label">Books Folder</div>
+    <div>
+      <div class="setting-value">~/Books/Archive</div>
+      <div class="setting-desc">47 volumes · 5.8 GB total · 132 GB free</div>
+    </div>
+    <button class="setting-action">Choose…</button>
+  </div>
+  <div class="setting-row">
+    <div class="setting-label">Default Quality</div>
+    <div>
+      <div class="setting-value">Resolution 3 · Medium</div>
+      <div class="setting-desc">~50–150 MB per book · 3–5 min download · best for daily reading</div>
+    </div>
+    <button class="setting-action">Adjust</button>
+  </div>
+  <div class="setting-row">
+    <div class="setting-label">Auto-Convert to Markdown</div>
+    <div>
+      <div class="setting-value">On</div>
+      <div class="setting-desc">Books are OCR'd to searchable markdown after download</div>
+    </div>
+    <div class="toggle toggle-on"><div class="toggle-knob"></div></div>
+  </div>
+</div>
+
+<!-- Librarian -->
+<div class="settings-section">
+  <div class="section-head">ARIA · Your Librarian</div>
+  <div class="setting-row">
+    <div class="setting-label">Recommendations</div>
+    <div>
+      <div class="setting-value">Quiet</div>
+      <div class="setting-desc">ARIA only speaks on milestones &amp; gaps · Not chatty</div>
+    </div>
+    <button class="setting-action">Configure</button>
+  </div>
+  <div class="setting-row">
+    <div class="setting-label">Domain Tagging</div>
+    <div>
+      <div class="setting-value">Auto · via Open Library</div>
+      <div class="setting-desc">After each download, ARIA fetches subjects &amp; shelves automatically</div>
+    </div>
+    <div class="toggle toggle-on"><div class="toggle-knob"></div></div>
+  </div>
+</div>
+
+<!-- About -->
+<div class="settings-section">
+  <div class="section-head">About</div>
+  <div class="about-block">
+    <div class="about-cell">
+      <div class="about-label">Version</div>
+      <div class="about-value">2.0.0</div>
+    </div>
+    <div class="about-cell">
+      <div class="about-label">Edition</div>
+      <div class="about-value">Risograph</div>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:32px;">
+  <button class="button-primary" onclick="window.pywebview.api.navigate('03_dashboard')">Done</button>
+  <button class="button-secondary" onclick="window.pywebview.api.navigate('02_login')">Re-Run Setup</button>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian · Settings</div>
+<div class="footer-meta">Two-Color Print · Halftone Type · Cream Paper · Issue 01</div>
+</div>
+</div>
+</div>
+<script>
+async function refresh() {
+  const creds = await window.pywebview.api.credentials_status();
+  const cfg = await window.pywebview.api.config();
+  const summary = await window.pywebview.api.library_summary();
+  const rows = document.querySelectorAll('.setting-row');
+  rows[0].querySelector('.setting-value').textContent = creds.email || '(not set)';
+  rows[0].querySelector('.setting-desc').textContent = (creds.set ? 'Verified · Stored in ' : 'NOT SET — re-run setup · Storage: ') + creds.storage;
+  rows[1].querySelector('.setting-value').textContent = creds.storage;
+  rows[2].querySelector('.setting-value').textContent = cfg.library_dir.replace(/^\/Users\/[^/]+/, '~');
+  rows[2].querySelector('.setting-desc').textContent = `${summary.count} volumes · ${summary.total_mb} MB total`;
+  rows[3].querySelector('.setting-value').textContent = `Resolution ${cfg.resolution} · ${cfg.resolution === 0 ? 'Best' : cfg.resolution <= 3 ? 'Medium' : 'Fast'}`;
+}
+async function changeFolder() {
+  const r = await window.pywebview.api.choose_library_dir();
+  if (r.ok) refresh();
+}
+async function deleteCreds() {
+  if (!confirm('Remove your archive.org credentials from Keychain?')) return;
+  await window.pywebview.api.credentials_delete();
+  refresh();
+}
+window.addEventListener('pywebviewready', () => {
+  refresh();
+  const rows = document.querySelectorAll('.setting-row');
+  if (rows[0]) rows[0].querySelector('.setting-action').onclick = () => window.pywebview.api.navigate('02_login');
+  if (rows[1]) rows[1].querySelector('.setting-action').onclick = deleteCreds;
+  if (rows[2]) rows[2].querySelector('.setting-action').onclick = changeFolder;
+});
+</script>
+</body></html>

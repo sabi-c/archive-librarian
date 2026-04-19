@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive Librarian - Winamp Classic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #3a3a3a url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect fill="%23333" width="4" height="4"/><rect fill="%23444" x="1" y="1" width="2" height="2"/></svg>');
+            font-family: "MS Sans Serif", "System Font", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .winamp-container {
+            width: 280px;
+            background: linear-gradient(to bottom, #1a1a1a, #2a2a2a, #1a1a1a);
+            border: 2px solid;
+            border-color: #777 #1a1a1a #1a1a1a #777;
+            box-shadow:
+                inset 1px 1px 0 #555,
+                inset -1px -1px 0 #000,
+                0 0 10px rgba(0,0,0,0.8);
+            font-size: 10px;
+            color: #ccc;
+            overflow: hidden;
+        }
+
+        /* TITLE BAR */
+        .title-bar {
+            background: linear-gradient(to right, #000080, #1084d7);
+            color: #fff;
+            padding: 2px 2px 2px 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            height: 20px;
+            border-bottom: 1px solid #000;
+        }
+
+        .title-text {
+            font-family: "Arial Black", sans-serif;
+            font-size: 10px;
+            text-shadow: 1px 1px 0 #000;
+            letter-spacing: 1px;
+        }
+
+        .title-buttons {
+            display: flex;
+            gap: 2px;
+        }
+
+        .title-btn {
+            width: 16px;
+            height: 14px;
+            background: linear-gradient(to bottom, #dfdfdf, #808080);
+            border: 1px solid;
+            border-color: #dfdfdf #808080 #808080 #dfdfdf;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .title-btn:active {
+            border-color: #808080 #dfdfdf #dfdfdf #808080;
+        }
+
+        /* MAIN PANEL */
+        .main-panel {
+            padding: 4px;
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #555;
+        }
+
+        .app-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 9px;
+            color: #0eff0e;
+            text-shadow: 0 0 4px #0eff0e, 0 0 8px rgba(14, 255, 14, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            font-family: "Courier New", monospace;
+        }
+
+        .display-area {
+            background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
+            border: 2px solid;
+            border-color: #000 #444 #444 #000;
+            padding: 4px;
+            margin-bottom: 4px;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+        }
+
+        .display-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+            font-family: "Courier New", monospace;
+            font-size: 8px;
+        }
+
+        .display-label {
+            color: #888;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .display-value {
+            color: #0eff0e;
+            text-shadow: 0 0 3px #0eff0e;
+            font-weight: bold;
+            font-family: "Courier New", monospace;
+            letter-spacing: 1px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #0eff0e;
+            box-shadow: 0 0 6px #0eff0e, inset -1px -1px 0 rgba(0,0,0,0.5);
+            display: inline-block;
+            margin-right: 3px;
+        }
+
+        /* TRANSPORT CONTROLS */
+        .transport-controls {
+            display: flex;
+            gap: 2px;
+            justify-content: space-around;
+            padding: 4px;
+            background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #000;
+        }
+
+        .transport-btn {
+            width: 36px;
+            height: 15px;
+            background: linear-gradient(to bottom, #333, #1a1a1a);
+            border: 1px solid;
+            border-color: #666 #222 #222 #666;
+            color: #0eff0e;
+            font-size: 7px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            letter-spacing: 0.5px;
+            transition: all 0.05s;
+            text-shadow: 0 0 2px #0eff0e;
+        }
+
+        .transport-btn:hover {
+            background: linear-gradient(to bottom, #444, #222);
+        }
+
+        .transport-btn:active {
+            border-color: #222 #666 #666 #222;
+        }
+
+        .transport-btn.primary {
+            background: linear-gradient(to bottom, #444, #1a1a1a);
+            border-color: #ffaa00 #662200 #662200 #ffaa00;
+            color: #ffaa00;
+            text-shadow: 0 0 3px #ffaa00;
+            font-weight: bold;
+        }
+
+        /* EQ / LIBRARY ACTIVITY */
+        .eq-panel {
+            background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+            padding: 4px;
+            border-bottom: 1px solid #555;
+            border-top: 1px solid #444;
+        }
+
+        .eq-title {
+            font-size: 8px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .eq-bars-container {
+            display: flex;
+            gap: 2px;
+            height: 40px;
+            align-items: flex-end;
+            background: linear-gradient(to right, #0a0a0a, #1a1a1a);
+            padding: 3px;
+            border: 1px solid #000;
+            border-radius: 2px;
+        }
+
+        .eq-bar {
+            flex: 1;
+            background: linear-gradient(to top, #0eff0e, #44ff44);
+            border: 1px solid #0a7c0a;
+            border-radius: 1px;
+            box-shadow: 0 0 4px #0eff0e;
+            position: relative;
+        }
+
+        .eq-bar.philosophy { height: 75%; }
+        .eq-bar.health { height: 62%; }
+        .eq-bar.tech { height: 88%; }
+        .eq-bar.history { height: 55%; }
+        .eq-bar.fiction { height: 70%; }
+        .eq-bar.spirituality { height: 65%; }
+
+        .eq-label {
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6px;
+            color: #666;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0px;
+        }
+
+        /* PLAYLIST / BOOKS */
+        .playlist-panel {
+            background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
+            border-top: 2px solid;
+            border-color: #777 #1a1a1a;
+            overflow: hidden;
+        }
+
+        .playlist-title {
+            background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+            color: #888;
+            padding: 2px 4px;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #000;
+        }
+
+        .playlist-items {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #0a0a0a;
+        }
+
+        .playlist-item {
+            padding: 2px 4px;
+            font-size: 8px;
+            color: #ccc;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.05s;
+            font-family: "Courier New", monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playlist-item:nth-child(odd) {
+            background: #0a0a0a;
+        }
+
+        .playlist-item:nth-child(even) {
+            background: #141414;
+        }
+
+        .playlist-item:hover {
+            background: #1a3a5a;
+            color: #0eff0e;
+        }
+
+        .playlist-item.current {
+            background: #2a4a7a;
+            color: #0eff0e;
+            text-shadow: 0 0 3px #0eff0e;
+            font-weight: bold;
+        }
+
+        .book-count-small {
+            color: #ffaa00;
+            text-shadow: 0 0 2px #ffaa00;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        /* SCROLLBAR STYLING */
+        .playlist-items::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .playlist-items::-webkit-scrollbar-track {
+            background: #0a0a0a;
+            border-left: 1px solid #1a1a1a;
+        }
+
+        .playlist-items::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #444, #222);
+            border: 1px solid #666;
+            border-radius: 2px;
+        }
+
+        .playlist-items::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #555, #333);
+        }
+
+        /* BOTTOM FOOTER */
+        .footer {
+            background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+            padding: 2px 4px;
+            font-size: 7px;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* METADATA DISPLAY */
+        .metadata-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 7px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .meta-label {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meta-value {
+            color: #0eff0e;
+            text-shadow: 0 0 2px #0eff0e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="winamp-container">
+        <!-- TITLE BAR -->
+        <div class="title-bar">
+            <span class="title-text">Archive Librarian</span>
+            <div class="title-buttons">
+                <div class="title-btn">_</div>
+                <div class="title-btn">□</div>
+                <div class="title-btn">✕</div>
+            </div>
+        </div>
+
+        <!-- MAIN PANEL -->
+        <div class="main-panel">
+            <div class="app-title">◄ARCHIVE LIBRARIAN►</div>
+
+            <!-- DISPLAY AREA -->
+            <div class="display-area">
+                <div class="display-row">
+                    <span class="display-label">BOOKS</span>
+                    <span class="display-value">047</span>
+                </div>
+                <div class="display-row">
+                    <span class="display-label">STATUS</span>
+                    <span class="display-value"><span class="status-indicator"></span>READY</span>
+                </div>
+                <div class="display-row">
+                    <span class="display-label">CURATOR</span>
+                    <span class="display-value">ARIA</span>
+                </div>
+                <div class="metadata-row">
+                    <span class="meta-label">kbps:</span>
+                    <span class="meta-value">999 GOOD</span>
+                </div>
+            </div>
+
+            <!-- TRANSPORT CONTROLS -->
+            <div class="transport-controls">
+                <div class="transport-btn">⏮ PREV</div>
+                <div class="transport-btn">⏸ PAUSE</div>
+                <div class="transport-btn primary">▶ DL</div>
+                <div class="transport-btn">⚙ SET</div>
+            </div>
+        </div>
+
+        <!-- EQ PANEL / LIBRARY ACTIVITY -->
+        <div class="eq-panel">
+            <div class="eq-title">LIBRARY ACTIVITY</div>
+            <div class="eq-bars-container">
+                <div class="eq-bar philosophy" style="height: 75%;"><span class="eq-label">PHI</span></div>
+                <div class="eq-bar health" style="height: 62%;"><span class="eq-label">HLT</span></div>
+                <div class="eq-bar tech" style="height: 88%;"><span class="eq-label">TECH</span></div>
+                <div class="eq-bar history" style="height: 55%;"><span class="eq-label">HST</span></div>
+                <div class="eq-bar fiction" style="height: 70%;"><span class="eq-label">FIC</span></div>
+                <div class="eq-bar spirituality" style="height: 65%;"><span class="eq-label">SPI</span></div>
+            </div>
+        </div>
+
+        <!-- PLAYLIST / BOOKS -->
+        <div class="playlist-panel">
+            <div class="playlist-title">► RECENT DOWNLOADS</div>
+            <div class="playlist-items">
+                <div class="playlist-item current">
+                    <span>The Tao Te Ching</span>
+                    <span class="book-count-small">287K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>Walden by Thoreau</span>
+                    <span class="book-count-small">512K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>Meditations</span>
+                    <span class="book-count-small">198K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>The Power of Now</span>
+                    <span class="book-count-small">421K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>A Brief History</span>
+                    <span class="book-count-small">689K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>Zen and the Art</span>
+                    <span class="book-count-small">445K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>The Selfish Gene</span>
+                    <span class="book-count-small">334K</span>
+                </div>
+                <div class="playlist-item">
+                    <span>Deep Work</span>
+                    <span class="book-count-small">267K</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            WINAMP v2.99 ENHANCED • 1999-2026
+        </div>
+    </div>
+</body>
+</html>

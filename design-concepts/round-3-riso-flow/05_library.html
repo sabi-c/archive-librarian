@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Library</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.lib-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+.lib-title { font-size: 56px; font-weight: 900; line-height: 1; letter-spacing: -2px; text-transform: uppercase; text-shadow: 3px -2px 0 rgba(200, 84, 58, 0.25); }
+.lib-meta { text-align: right; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.6; line-height: 1.6; }
+
+/* Filter strip */
+.filter-strip { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+.filter-chip { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 8px 14px; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+.filter-chip.active { background: var(--ink); color: var(--paper); }
+.filter-chip-count { opacity: 0.5; margin-left: 6px; font-weight: 600; }
+.filter-chip.active .filter-chip-count { opacity: 0.7; }
+
+/* Search */
+.search-row { display: grid; grid-template-columns: 1fr 200px; gap: 16px; margin-bottom: 24px; align-items: end; }
+.search-input { background: transparent; border: none; border-bottom: 2px solid var(--ink); padding: 12px 0; font-family: inherit; font-size: 16px; font-weight: 700; color: var(--ink); outline: none; letter-spacing: 0.5px; width: 100%; }
+.sort-select { font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 12px 16px; background: var(--paper); border: 2px solid var(--ink); color: var(--ink); cursor: pointer; }
+
+/* Book grid (denser than dashboard) */
+.book-list { margin-top: 32px; }
+.book-row { display: grid; grid-template-columns: 60px 60px 1fr 100px 80px 100px; gap: 16px; align-items: center; padding: 16px 0; border-top: 1px solid var(--ink); cursor: pointer; }
+.book-row:last-child { border-bottom: 1px solid var(--ink); }
+.book-row:hover { background: var(--paper-deep); }
+.book-num { font-size: 11px; font-weight: 700; opacity: 0.5; letter-spacing: 1px; }
+.book-mini-cover { width: 40px; height: 54px; background: var(--ink); position: relative; }
+.book-mini-cover::after { content: ''; position: absolute; inset: 4px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><defs><pattern id="x" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2.2" fill="%23f3ead2" opacity="0.85"/></pattern></defs><rect width="40" height="40" fill="url(%23x)"/></svg>'); }
+.book-meta { min-width: 0; }
+.book-title { font-size: 14px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; line-height: 1.3; }
+.book-author { font-size: 11px; opacity: 0.6; margin-top: 4px; letter-spacing: 0.3px; }
+.book-domain { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; }
+.book-pages { font-size: 11px; opacity: 0.6; text-align: right; letter-spacing: 0.5px; }
+.book-date { font-size: 11px; opacity: 0.5; text-align: right; letter-spacing: 0.5px; font-family: monospace; }
+
+.lib-footer { margin-top: 56px; display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 2px solid var(--ink); }
+.lib-footer-meta { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; font-weight: 600; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="content">
+
+<div class="eyebrow">Personal Library Manager · The Stacks</div>
+
+<div class="lib-header">
+  <div class="lib-title">Library<br>Index</div>
+  <div class="lib-meta">47 Volumes<br>Across 6 Domains<br>5.8 GB Total</div>
+</div>
+
+<div class="search-row">
+  <input class="search-input" type="text" placeholder="Search titles, authors, subjects…" value="">
+  <select class="sort-select">
+    <option>Newest First</option>
+    <option>Title A-Z</option>
+    <option>Author A-Z</option>
+    <option>Largest First</option>
+  </select>
+</div>
+
+<div class="filter-strip">
+  <button class="filter-chip active">All<span class="filter-chip-count">47</span></button>
+  <button class="filter-chip">Philosophy<span class="filter-chip-count">12</span></button>
+  <button class="filter-chip">Science<span class="filter-chip-count">9</span></button>
+  <button class="filter-chip">Health<span class="filter-chip-count">7</span></button>
+  <button class="filter-chip">History<span class="filter-chip-count">8</span></button>
+  <button class="filter-chip">Tech<span class="filter-chip-count">6</span></button>
+  <button class="filter-chip">Craft<span class="filter-chip-count">5</span></button>
+</div>
+
+<div class="book-list">
+<div class="book-row">
+  <div class="book-num">01</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">LSD: The Consciousness-Expanding Drug</div><div class="book-author">edited by David Solomon · 1964</div></div>
+  <div class="book-domain">Science</div>
+  <div class="book-pages">302 pp · 62 MB</div>
+  <div class="book-date">Apr 19</div>
+</div>
+<div class="book-row">
+  <div class="book-num">02</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">The Tao Te Ching</div><div class="book-author">Lao Tzu · trans. Stephen Mitchell</div></div>
+  <div class="book-domain">Philosophy</div>
+  <div class="book-pages">128 pp · 18 MB</div>
+  <div class="book-date">Apr 14</div>
+</div>
+<div class="book-row">
+  <div class="book-num">03</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">Walden</div><div class="book-author">Henry David Thoreau · 1854</div></div>
+  <div class="book-domain">Philosophy</div>
+  <div class="book-pages">368 pp · 84 MB</div>
+  <div class="book-date">Apr 12</div>
+</div>
+<div class="book-row">
+  <div class="book-num">04</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">Meditations</div><div class="book-author">Marcus Aurelius · trans. Gregory Hays</div></div>
+  <div class="book-domain">Philosophy</div>
+  <div class="book-pages">256 pp · 47 MB</div>
+  <div class="book-date">Apr 08</div>
+</div>
+<div class="book-row">
+  <div class="book-num">05</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">The Power of Now</div><div class="book-author">Eckhart Tolle · 1997</div></div>
+  <div class="book-domain">Philosophy</div>
+  <div class="book-pages">240 pp · 51 MB</div>
+  <div class="book-date">Apr 05</div>
+</div>
+<div class="book-row">
+  <div class="book-num">06</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">On the Origin of Species</div><div class="book-author">Charles Darwin · 1859</div></div>
+  <div class="book-domain">Science</div>
+  <div class="book-pages">502 pp · 118 MB</div>
+  <div class="book-date">Mar 31</div>
+</div>
+<div class="book-row">
+  <div class="book-num">07</div>
+  <div class="book-mini-cover"></div>
+  <div class="book-meta"><div class="book-title">Gödel, Escher, Bach</div><div class="book-author">Douglas Hofstadter · 1979</div></div>
+  <div class="book-domain">Science</div>
+  <div class="book-pages">777 pp · 192 MB</div>
+  <div class="book-date">Mar 28</div>
+</div>
+</div>
+
+<div class="lib-footer">
+<div class="lib-footer-meta">Showing 7 of 47 · Click any volume to read</div>
+<button class="button-secondary">+ Add Book</button>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian · Index Updated</div>
+<div class="footer-meta">~/Books/Archive · Last sync · Just now</div>
+</div>
+</div>
+</div>
+</body></html>

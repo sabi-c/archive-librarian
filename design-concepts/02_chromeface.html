@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive Librarian - CHROMEFACE Concept</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a1428 0%, #1a2847 50%, #0f1e35 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e8f0ff;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .wordmark {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #d8e0e8 0%, #a0b8d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(0, 64, 255, 0.3);
+        }
+
+        .subtitle {
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: #7090b8;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        /* CHROME FACE SVG CONTAINER */
+        .face-container {
+            flex-shrink: 0;
+            position: relative;
+            width: 380px;
+            height: 480px;
+            filter: drop-shadow(0 0 40px rgba(0, 64, 255, 0.25))
+                    drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* SIDE PANEL - floating library list */
+        .side-panel {
+            background: linear-gradient(135deg, rgba(13, 32, 80, 0.95) 0%, rgba(8, 24, 60, 0.95) 100%);
+            border: 1px solid rgba(216, 224, 232, 0.2);
+            border-radius: 20px;
+            padding: 24px;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 170, 0, 0.2);
+        }
+
+        .panel-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a0b8d8;
+        }
+
+        .book-count {
+            background: linear-gradient(90deg, #ffaa00, #ff8800);
+            color: #0a1428;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .book-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .book-item {
+            background: rgba(0, 64, 255, 0.08);
+            border: 1px solid rgba(0, 64, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .book-item:hover {
+            background: rgba(0, 64, 255, 0.15);
+            border-color: rgba(255, 170, 0, 0.4);
+            transform: translateX(4px);
+        }
+
+        .book-item.active {
+            background: rgba(255, 170, 0, 0.15);
+            border-color: rgba(255, 170, 0, 0.5);
+        }
+
+        .book-title {
+            font-weight: 500;
+            color: #d8e0e8;
+            margin-bottom: 4px;
+        }
+
+        .book-size {
+            color: #7090b8;
+            font-size: 10px;
+        }
+
+        /* BOTTOM CONTROL SECTION */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+            padding: 40px 0;
+        }
+
+        .primary-action {
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+            color: #0a1428;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 28px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(255, 170, 0, 0.3),
+                        0 0 20px rgba(255, 170, 0, 0.2);
+            min-width: 280px;
+        }
+
+        .primary-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255, 170, 0, 0.4),
+                        0 0 30px rgba(255, 170, 0, 0.3);
+        }
+
+        .primary-action:active {
+            transform: translateY(0);
+        }
+
+        .status-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #7090b8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 12px #00ff88;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 12px #00ff88;
+            }
+            50% {
+                opacity: 0.6;
+                box-shadow: 0 0 6px #00ff88;
+            }
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 20px;
+        }
+
+        .footer-link {
+            color: #7090b8;
+            text-decoration: none;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #ffaa00;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .face-container {
+                width: 300px;
+                height: 380px;
+            }
+
+            .side-panel {
+                width: 280px;
+            }
+
+            .primary-action {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="wordmark">Archive Librarian</div>
+            <div class="subtitle">Your Personal Knowledge Companion</div>
+        </div>
+
+        <div class="main-content">
+            <!-- CHROME FACE -->
+            <div class="face-container">
+                <svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Chrome metal gradient -->
+                        <linearGradient id="chromeMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f5f8fc;stop-opacity:1" />
+                            <stop offset="25%" style="stop-color:#d8e0e8;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#a0b8d8;stop-opacity:1" />
+                            <stop offset="75%" style="stop-color:#6878a0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#4a5a78;stop-opacity:1" />
+                        </linearGradient>
+
+                        <!-- Deep blue accent -->
+                        <radialGradient id="blueAccent" cx="40%" cy="40%">
+                            <stop offset="0%" style="stop-color:#0066ff;stop-opacity:0.4" />
+                            <stop offset="100%" style="stop-color:#002080;stop-opacity:0" />
+                        </radialGradient>
+
+                        <!-- Eye display gradient -->
+                        <radialGradient id="eyeDisplay" cx="35%" cy="35%">
+                            <stop offset="0%" style="stop-color:#00ffff;stop-opacity:1" />
+                            <stop offset="40%" style="stop-color:#0088ff;stop-opacity:0.8" />
+                            <stop offset="100%" style="stop-color:#001a4d;stop-opacity:1" />
+                        </radialGradient>
+
+                        <!-- Specular highlight -->
+                        <linearGradient id="highlight" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6" />
+                            <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0" />
+                            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+                        </linearGradient>
+
+                        <!-- Shadow -->
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Background sphere/head form -->
+                    <ellipse cx="120" cy="100" rx="85" ry="95" fill="url(#chromeMetal)" filter="url(#shadow)"/>
+
+                    <!-- Blue depth layer -->
+                    <ellipse cx="120" cy="100" rx="85" ry="95" fill="url(#blueAccent)"/>
+
+                    <!-- Neck/shoulder suggestion -->
+                    <path d="M 80 180 Q 120 210 160 180 L 155 220 Q 120 230 85 220 Z" fill="url(#chromeMetal)" opacity="0.9"/>
+
+                    <!-- LEFT EYE (main display) -->
+                    <circle cx="85" cy="85" r="32" fill="url(#eyeDisplay)"/>
+
+                    <!-- Eye outer ring -->
+                    <circle cx="85" cy="85" r="32" fill="none" stroke="#d8e0e8" stroke-width="2" opacity="0.5"/>
+                    <circle cx="85" cy="85" r="30" fill="none" stroke="url(#highlight)" stroke-width="1" opacity="0.8"/>
+
+                    <!-- Eye inner glow (book title display) -->
+                    <circle cx="85" cy="85" r="28" fill="#001a4d" opacity="0.9"/>
+                    <text x="85" y="88" text-anchor="middle" font-size="9" font-weight="bold" fill="#00ffff" opacity="0.9" font-family="monospace">
+                        TAO TE
+                    </text>
+                    <text x="85" y="100" text-anchor="middle" font-size="8" fill="#00dddd" opacity="0.7" font-family="monospace">
+                        CHING
+                    </text>
+
+                    <!-- RIGHT SIDE DETAIL (decorative) -->
+                    <circle cx="155" cy="90" r="20" fill="none" stroke="#d8e0e8" stroke-width="1.5" opacity="0.3"/>
+                    <circle cx="155" cy="90" r="18" fill="none" stroke="#a0b8d8" stroke-width="1" opacity="0.2"/>
+
+                    <!-- MOUTH/STATUS AREA - glowing LED-style text -->
+                    <rect x="70" y="150" width="100" height="22" rx="11" fill="#001a2e" stroke="#ffaa00" stroke-width="1.5" opacity="0.8"/>
+                    <text x="120" y="165" text-anchor="middle" font-size="10" font-weight="600" fill="#ffaa00" opacity="0.9" font-family="monospace" letter-spacing="1">
+                        READY
+                    </text>
+
+                    <!-- Face contour - subtle shading -->
+                    <ellipse cx="120" cy="100" rx="85" ry="95" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.15"/>
+
+                    <!-- Top highlight (chrome shine) -->
+                    <ellipse cx="110" cy="30" rx="50" ry="25" fill="#ffffff" opacity="0.25" filter="url(#shadow)"/>
+                </svg>
+            </div>
+
+            <!-- SIDE PANEL -->
+            <div class="side-panel">
+                <div class="panel-header">
+                    <div class="panel-title">Recent Downloads</div>
+                    <div class="book-count">47 BOOKS</div>
+                </div>
+
+                <div class="book-list">
+                    <div class="book-item active">
+                        <div class="book-title">The Tao Te Ching</div>
+                        <div class="book-size">↓ 2.3 MB</div>
+                    </div>
+                    <div class="book-item">
+                        <div class="book-title">Walden</div>
+                        <div class="book-size">↓ 1.8 MB</div>
+                    </div>
+                    <div class="book-item">
+                        <div class="book-title">Meditations</div>
+                        <div class="book-size">↓ 1.6 MB</div>
+                    </div>
+                    <div class="book-item">
+                        <div class="book-title">The Power of Now</div>
+                        <div class="book-size">↓ 2.1 MB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls">
+            <button class="primary-action">+ Download Book</button>
+            <div class="status-line">
+                <div class="status-indicator"></div>
+                <span>System Ready</span>
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Settings</a>
+                <a href="#" class="footer-link">About ARIA</a>
+                <a href="#" class="footer-link">Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Optional interactivity
+        document.querySelectorAll('.book-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.book-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update eye display
+                const title = this.querySelector('.book-title').textContent;
+                const shortTitle = title.split(' ').slice(0, 2).join(' ').toUpperCase();
+                const eyeText = document.querySelector('text[font-family="monospace"]');
+                if (eyeText) {
+                    eyeText.textContent = shortTitle;
+                }
+            });
+        });
+
+        document.querySelector('.primary-action').addEventListener('click', function() {
+            this.textContent = '✓ Added to Queue';
+            setTimeout(() => {
+                this.textContent = '+ Download Book';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

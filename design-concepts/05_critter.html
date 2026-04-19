@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIVE LIBRARIAN — CRITTER Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a1f1f 0%, #1a3a2a 50%, #0f2418 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .container {
+            position: relative;
+            width: 1000px;
+            height: 700px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bug-stage {
+            position: relative;
+            width: 500px;
+            height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* SVG Container */
+        svg {
+            filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.6))
+                    drop-shadow(0 0 20px rgba(127, 234, 255, 0.3));
+        }
+
+        /* Right panel — Library */
+        .library-panel {
+            position: absolute;
+            right: 0;
+            width: 420px;
+            height: 580px;
+            background: linear-gradient(135deg, rgba(26, 58, 42, 0.95) 0%, rgba(10, 30, 20, 0.98) 100%);
+            border: 2px solid #1ea050;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: inset 0 0 20px rgba(127, 234, 255, 0.1), 0 0 30px rgba(30, 160, 80, 0.2);
+            overflow-y: auto;
+        }
+
+        .library-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #1ea050;
+            padding-bottom: 12px;
+        }
+
+        .library-header h2 {
+            color: #7feaff;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .counter {
+            color: #ffaa00;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .recent-downloads {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .book-item {
+            background: linear-gradient(135deg, rgba(30, 160, 80, 0.3) 0%, rgba(10, 96, 32, 0.2) 100%);
+            border-left: 3px solid #ffaa00;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.4;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .book-item:hover {
+            background: linear-gradient(135deg, rgba(30, 180, 100, 0.5) 0%, rgba(10, 120, 50, 0.3) 100%);
+            border-left-color: #7feaff;
+            transform: translateX(4px);
+        }
+
+        .book-item .title {
+            color: #7feaff;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .book-item .meta {
+            color: #aaa;
+            font-size: 10px;
+        }
+
+        /* App label */
+        .app-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #1ea050 0%, #0a6020 100%);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            border: 1px solid #7feaff;
+            box-shadow: 0 0 10px rgba(127, 234, 255, 0.4);
+        }
+
+        /* Antenna glow animation */
+        @keyframes antenna-glow {
+            0%, 100% {
+                opacity: 0.6;
+                r: 6px;
+            }
+            50% {
+                opacity: 1;
+                r: 10px;
+            }
+        }
+
+        .antenna-glow {
+            animation: antenna-glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes eye-blink {
+            0%, 49%, 100% {
+                opacity: 1;
+            }
+            50%, 99% {
+                opacity: 0.3;
+            }
+        }
+
+        .eye-blink {
+            animation: eye-blink 3s ease-in-out infinite;
+        }
+
+        @keyframes body-pulse {
+            0%, 100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.1);
+            }
+        }
+
+        .body-pulse {
+            animation: body-pulse 2.5s ease-in-out infinite;
+        }
+
+        /* Interactive leg buttons */
+        .leg-button {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .leg-button:hover {
+            filter: brightness(1.3);
+        }
+
+        .leg-button:active {
+            filter: brightness(0.9);
+        }
+
+        /* Status tooltip */
+        .status-tooltip {
+            position: absolute;
+            background: #ffaa00;
+            color: #0a1f1f;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-label">ARCHIVE LIBRARIAN</div>
+
+    <div class="container">
+        <div class="bug-stage">
+            <!-- ARIA the Bug — SVG creature -->
+            <svg viewBox="0 0 280 360" width="280" height="360" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="carapace-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1ea050;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#0a6020;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#053010;stop-opacity:1" />
+                    </linearGradient>
+
+                    <linearGradient id="belly-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffaa00;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#ff8000;stop-opacity:0.8" />
+                    </linearGradient>
+
+                    <radialGradient id="eye-glow">
+                        <stop offset="0%" style="stop-color:#7feaff;stop-opacity:1" />
+                        <stop offset="80%" style="stop-color:#00d9ff;stop-opacity:0.6" />
+                        <stop offset="100%" style="stop-color:#0088aa;stop-opacity:0" />
+                    </radialGradient>
+
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- MAIN BODY — Carapace (shell) -->
+                <ellipse cx="140" cy="140" rx="95" ry="110" fill="url(#carapace-grad)" class="body-pulse" />
+
+                <!-- Shell shine/highlight -->
+                <ellipse cx="120" cy="100" rx="50" ry="60" fill="#fff" opacity="0.15" />
+
+                <!-- Center line (carapace split) -->
+                <line x1="140" y1="60" x2="140" y2="250" stroke="#053010" stroke-width="2" opacity="0.5" />
+
+                <!-- EQ visualization panel on carapace -->
+                <g id="eq-display">
+                    <rect x="110" y="110" width="60" height="60" fill="rgba(0,0,0,0.4)" rx="3" />
+                    <rect x="115" y="140" width="6" height="30" fill="#00ff00" opacity="0.8" rx="1" />
+                    <rect x="125" y="130" width="6" height="40" fill="#00ff00" opacity="0.8" rx="1" />
+                    <rect x="135" y="125" width="6" height="45" fill="#00ff00" opacity="0.9" rx="1" />
+                    <rect x="145" y="128" width="6" height="42" fill="#00ff00" opacity="0.8" rx="1" />
+                    <rect x="155" y="138" width="6" height="32" fill="#00ff00" opacity="0.8" rx="1" />
+                </g>
+
+                <!-- LEGS (6 total, 3 on each side) -->
+                <!-- Left front leg (Download button area) -->
+                <g class="leg-button">
+                    <ellipse cx="55" cy="90" rx="18" ry="28" fill="#ffaa00" opacity="0.85" />
+                    <text x="55" y="96" text-anchor="middle" font-size="10" font-weight="bold" fill="#0a1f1f">↓</text>
+                </g>
+
+                <!-- Left middle leg -->
+                <g class="leg-button">
+                    <ellipse cx="35" cy="140" rx="16" ry="26" fill="#1ea050" opacity="0.9" />
+                    <text x="35" y="146" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">≡</text>
+                </g>
+
+                <!-- Left rear leg -->
+                <g class="leg-button">
+                    <ellipse cx="55" cy="190" rx="18" ry="28" fill="#1ea050" opacity="0.9" />
+                    <text x="55" y="196" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">⚙</text>
+                </g>
+
+                <!-- Right front leg -->
+                <g class="leg-button">
+                    <ellipse cx="225" cy="90" rx="18" ry="28" fill="#1ea050" opacity="0.9" />
+                    <text x="225" y="96" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">+</text>
+                </g>
+
+                <!-- Right middle leg -->
+                <g class="leg-button">
+                    <ellipse cx="245" cy="140" rx="16" ry="26" fill="#1ea050" opacity="0.9" />
+                    <text x="245" y="146" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">❮</text>
+                </g>
+
+                <!-- Right rear leg -->
+                <g class="leg-button">
+                    <ellipse cx="225" cy="190" rx="18" ry="28" fill="#1ea050" opacity="0.9" />
+                    <text x="225" y="196" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold">✕</text>
+                </g>
+
+                <!-- ANTENNAE -->
+                <!-- Left antenna -->
+                <path d="M 110 50 Q 80 10 70 -10" stroke="#0a6020" stroke-width="4" fill="none" stroke-linecap="round" />
+                <circle cx="70" cy="-10" r="8" fill="#7feaff" filter="url(#glow)" class="antenna-glow" />
+
+                <!-- Right antenna -->
+                <path d="M 170 50 Q 200 10 210 -10" stroke="#0a6020" stroke-width="4" fill="none" stroke-linecap="round" />
+                <circle cx="210" cy="-10" r="8" fill="#7feaff" filter="url(#glow)" class="antenna-glow" />
+
+                <!-- EYES (2 luminous discs) -->
+                <!-- Left eye — shows current book icon -->
+                <g id="left-eye">
+                    <circle cx="115" cy="110" r="18" fill="url(#eye-glow)" class="eye-blink" />
+                    <circle cx="115" cy="110" r="15" fill="rgba(127, 234, 255, 0.2)" />
+                    <text x="115" y="115" text-anchor="middle" font-size="14" fill="#fff" font-weight="bold">📖</text>
+                </g>
+
+                <!-- Right eye — shows status -->
+                <g id="right-eye">
+                    <circle cx="165" cy="110" r="18" fill="url(#eye-glow)" class="eye-blink" opacity="0.8" />
+                    <circle cx="165" cy="110" r="15" fill="rgba(127, 234, 255, 0.2)" />
+                    <text x="165" y="116" text-anchor="middle" font-size="16" fill="#ffaa00">●</text>
+                </g>
+
+                <!-- MOUTH / STATUS AREA -->
+                <g id="mouth">
+                    <ellipse cx="140" cy="230" rx="35" ry="20" fill="#ffaa00" opacity="0.8" />
+                    <text x="140" y="237" text-anchor="middle" font-size="11" font-weight="bold" fill="#0a1f1f">READY</text>
+                </g>
+
+                <!-- Mandibles (decorative) -->
+                <path d="M 125 245 Q 120 255 125 260" stroke="#053010" stroke-width="3" fill="none" stroke-linecap="round" />
+                <path d="M 155 245 Q 160 255 155 260" stroke="#053010" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                <!-- ARIA label on side -->
+                <text x="240" y="280" font-size="12" font-weight="bold" fill="#7feaff" letter-spacing="1">ARIA</text>
+
+            </svg>
+        </div>
+
+        <!-- LIBRARY PANEL -->
+        <div class="library-panel">
+            <div class="library-header">
+                <h2>LIBRARY</h2>
+                <div class="counter">47 BOOKS ARCHIVED</div>
+            </div>
+
+            <div class="recent-downloads">
+                <div class="book-item">
+                    <div class="title">The Tao Te Ching</div>
+                    <div class="meta">Lao Tzu • 180 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">Walden</div>
+                    <div class="meta">Henry David Thoreau • 432 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">Meditations</div>
+                    <div class="meta">Marcus Aurelius • 270 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">The Power of Now</div>
+                    <div class="meta">Eckhart Tolle • 244 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">Braiding Sweetgrass</div>
+                    <div class="meta">Robin Wall Kimmerer • 386 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">The Second Mountain</div>
+                    <div class="meta">David Brooks • 432 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">Range</div>
+                    <div class="meta">David Epstein • 352 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">Parable of the Sower</div>
+                    <div class="meta">Octavia Butler • 279 pages</div>
+                </div>
+
+                <div class="book-item">
+                    <div class="title">Finite and Infinite Games</div>
+                    <div class="meta">James Carse • 160 pages</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

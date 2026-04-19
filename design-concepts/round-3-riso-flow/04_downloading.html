@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Downloading</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.now-block { display: flex; gap: 32px; align-items: center; margin: 40px 0 56px; }
+.book-cover {
+    width: 180px; height: 240px;
+    background: var(--ink);
+    border: 3px solid var(--ink);
+    position: relative;
+    flex-shrink: 0;
+    box-shadow: 6px 6px 0 rgba(22,56,168,0.2);
+}
+.book-cover-pattern {
+    position: absolute; inset: 12px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><defs><pattern id="d" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="3.6" fill="%23f3ead2" opacity="0.85"/></pattern></defs><rect width="120" height="120" fill="url(%23d)"/></svg>');
+}
+.book-cover-label {
+    position: absolute; bottom: 16px; left: 16px; right: 16px;
+    color: var(--paper);
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-align: center;
+}
+.now-meta { flex: 1; }
+.now-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; margin-bottom: 12px; }
+.now-title { font-size: 42px; font-weight: 900; line-height: 1.05; letter-spacing: -1px; text-transform: uppercase; margin-bottom: 8px; text-shadow: 2px -1px 0 rgba(200, 84, 58, 0.25); }
+.now-author { font-size: 14px; opacity: 0.7; margin-bottom: 24px; letter-spacing: 0.5px; }
+.now-stats { display: flex; gap: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; }
+.stat-divider { opacity: 0.3; }
+
+/* Progress bar — riso style: dotted halftone */
+.progress-section { margin: 24px 0 56px; }
+.progress-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.progress-bar {
+    height: 36px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    position: relative;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    width: 64%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="36"><defs><pattern id="p" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="3.8" fill="%231638a8"/></pattern></defs><rect width="20" height="36" fill="url(%23p)"/></svg>');
+    transition: width 0.3s ease;
+}
+
+/* Page-by-page log */
+.log-section { margin-top: 48px; }
+.log-title { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 20px; }
+.log-row { display: grid; grid-template-columns: 80px 1fr auto; gap: 16px; padding: 8px 0; font-size: 11px; font-family: 'IBM Plex Mono', 'Courier', monospace; letter-spacing: 0.5px; border-top: 1px solid rgba(22,56,168,0.15); }
+.log-row:last-child { border-bottom: 1px solid rgba(22,56,168,0.15); font-weight: 700; }
+.log-time { opacity: 0.5; }
+.log-msg { letter-spacing: 0.3px; }
+.log-status { font-weight: 700; opacity: 0.7; }
+
+.cancel-row { margin-top: 32px; display: flex; gap: 16px; align-items: center; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="content">
+
+<div class="eyebrow">In Progress · Movement Three</div>
+<div class="headline-md">Downloading</div>
+
+<div class="now-block">
+  <div class="book-cover">
+    <div class="book-cover-pattern"></div>
+    <div class="book-cover-label">Now Acquiring</div>
+  </div>
+  <div class="now-meta">
+    <div class="now-eyebrow">In Acquisition</div>
+    <div class="now-title">LSD: The Consciousness-Expanding Drug</div>
+    <div class="now-author">edited by David Solomon · 1964</div>
+    <div class="now-stats">
+      <span>302 PAGES</span>
+      <span class="stat-divider">·</span>
+      <span>~62 MB</span>
+      <span class="stat-divider">·</span>
+      <span>RES 3 (MEDIUM)</span>
+    </div>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-row">
+    <span>Page 193 of 302</span>
+    <span>64% · 02:14 remaining</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill"></div></div>
+</div>
+
+<div class="log-section">
+<div class="log-title">Acquisition Log</div>
+<div class="log-row"><span class="log-time">14:32:08</span><span class="log-msg">Authenticated with archive.org</span><span class="log-status">OK</span></div>
+<div class="log-row"><span class="log-time">14:32:09</span><span class="log-msg">Borrow grant received · token issued</span><span class="log-status">OK</span></div>
+<div class="log-row"><span class="log-time">14:32:11</span><span class="log-msg">Fetching page metadata · 302 pages enumerated</span><span class="log-status">OK</span></div>
+<div class="log-row"><span class="log-time">14:32:14</span><span class="log-msg">Page download started · 50 threads</span><span class="log-status">RUNNING</span></div>
+<div class="log-row"><span class="log-time">14:32:48</span><span class="log-msg">Pages 1–193 decrypted &amp; assembled</span><span class="log-status">RUNNING</span></div>
+</div>
+
+<div class="cancel-row">
+  <button class="button-secondary">Cancel</button>
+  <span class="status status-pending">● ARIA Working</span>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian · Acquisition #048</div>
+<div class="footer-meta">Output · ~/Books/Archive · Library will refresh on completion</div>
+</div>
+</div>
+</div>
+</body></html>

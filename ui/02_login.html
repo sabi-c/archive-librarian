@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><title>Archive Librarian — Login</title>
+<link rel="stylesheet" href="_riso_base.css">
+<style>
+.progress-strip { display: flex; gap: 6px; margin-bottom: 48px; }
+.progress-cell { height: 6px; flex: 1; background: rgba(22,56,168,0.15); }
+.progress-cell.active { background: var(--ink); }
+.form-block { max-width: 540px; margin-top: 32px; }
+.security-note { display: flex; gap: 16px; margin-top: 32px; padding: 20px 24px; border: 2px solid var(--ink); background: var(--paper-deep); }
+.security-note-mark { font-size: 24px; font-weight: 900; line-height: 1; }
+.security-note-text { font-size: 12px; line-height: 1.6; opacity: 0.8; letter-spacing: 0.3px; }
+.security-note-text strong { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; opacity: 1; }
+.cta-row { display: flex; gap: 16px; margin-top: 48px; }
+</style></head>
+<body>
+<div class="container">
+<div class="accent-bar accent-top-right"></div>
+<div class="content">
+<div class="eyebrow">Setup · Movement 02</div>
+<div class="headline-md">Sign In To<br>Archive.org</div>
+<div class="body-text">Your password is stored encrypted in your Mac's Keychain — the same place Safari saves your website passwords. Never written to a plain file. Never sent anywhere except archive.org.</div>
+
+<div class="progress-strip">
+  <div class="progress-cell active"></div>
+  <div class="progress-cell active"></div>
+  <div class="progress-cell"></div>
+  <div class="progress-cell"></div>
+  <div class="progress-cell"></div>
+</div>
+
+<div class="form-block">
+  <div class="field">
+    <label class="field-label">Email Address</label>
+    <input id="email" class="field-input" type="email" placeholder="name@archive.org" autofocus>
+  </div>
+  <div class="field">
+    <label class="field-label">Password</label>
+    <input id="password" class="field-input" type="password" placeholder="•••••••••••">
+  </div>
+  <div id="login-status" style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:20px;min-height:18px;"></div>
+</div>
+
+<div class="security-note">
+  <div class="security-note-mark">●●●</div>
+  <div class="security-note-text">
+    <strong>Storage</strong>
+    macOS Keychain (system-encrypted). Run <em>librarian creds delete</em> any time to remove.
+  </div>
+</div>
+
+<div class="cta-row">
+  <button class="button-primary" onclick="verify()">Verify &amp; Continue</button>
+  <button class="button-secondary" onclick="window.pywebview.api.open_external('https://archive.org/account/signup')">Need an Account?</button>
+</div>
+
+<div class="footer">
+<div class="footer-credit">ARIA, Librarian</div>
+<div class="footer-meta">Setup In Progress · Step 2 of 5</div>
+</div>
+</div>
+</div>
+<script>
+async function verify() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const status = document.getElementById('login-status');
+  if (!email || !password) {
+    status.textContent = '✗ Email and password required';
+    status.style.color = 'var(--ghost)';
+    return;
+  }
+  status.textContent = '◌ Saving...';
+  status.style.color = 'var(--ink)';
+  await window.pywebview.api.credentials_save(email, password);
+  status.textContent = '◌ Verifying with archive.org...';
+  const result = await window.pywebview.api.credentials_test(email, password);
+  if (result.ok) {
+    status.textContent = '✓ ' + result.message;
+    status.style.color = 'var(--ink)';
+    setTimeout(() => window.pywebview.api.navigate('03_dashboard'), 800);
+  } else {
+    status.textContent = '✗ ' + result.message;
+    status.style.color = 'var(--ghost)';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter') verify(); });
+// Pre-fill email if already saved
+window.addEventListener('pywebviewready', async () => {
+  const s = await window.pywebview.api.credentials_status();
+  if (s.email) document.getElementById('email').value = s.email;
+});
+</script>
+</body></html>
