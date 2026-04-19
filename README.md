@@ -2,15 +2,15 @@
 
 Download books from [archive.org](https://archive.org) as real PDFs you can keep on your computer — including the borrow-protected ones.
 
-**Built so anyone can use it.** No Terminal, no Python install, no setup commands. Just click and click.
+**v2.0 — Risograph Edition.** Native Mac window with a custom riso-print aesthetic. Zero terminal commands. Built so anyone can use it.
 
 ---
 
 ## 📥 Download
 
-### 👉 [**Click here to download Archive Librarian for Mac**](https://github.com/sabi-c/archive-librarian/releases/latest/download/Archive.Librarian.dmg)
+### 👉 [**Download Archive Librarian for Mac**](https://github.com/sabi-c/archive-librarian/releases/latest/download/Archive.Librarian.dmg)
 
-(Apple Silicon Macs — M1, M2, M3, M4. For Intel Macs see [bottom of this page](#intel-macs).)
+(Apple Silicon Macs — M1, M2, M3, M4. For Intel see [bottom of this page](#intel-macs).)
 
 ---
 
@@ -20,7 +20,7 @@ Download books from [archive.org](https://archive.org) as real PDFs you can keep
 
 2. **Double-click it.** A window opens showing the app and an Applications shortcut.
 
-3. **Drag the Archive Librarian icon onto Applications.** That's it — installed.
+3. **Drag the Archive Librarian icon onto Applications.** Installed.
 
 4. **Open Applications, find Archive Librarian, double-click it.**
 
@@ -30,88 +30,82 @@ Download books from [archive.org](https://archive.org) as real PDFs you can keep
    - Choose **Open** from the menu
    - Click **Open** in the dialog that appears
 
-   You only have to do this once. After that, it just opens normally.
+   You only have to do this once.
+
+---
+
+## What it looks like
+
+A native Mac window in a custom riso-print aesthetic — deep blue ink on cream paper, halftone dot patterns, bold typography, editorial layout. Six screens covering the full flow:
+
+| Screen | What it does |
+|--------|-------------|
+| **Welcome** | First-launch unboxing with five-step setup outline |
+| **Login** | Email + password fields, live archive.org verification |
+| **Dashboard** | Library counter, recent downloads, primary download action |
+| **Downloading** | Live progress, the book itself rendered as a halftone cover |
+| **Library** | Full browse, search, click any book to open in macOS Preview |
+| **Settings** | Account, library folder, default quality, librarian behavior |
+
+ARIA the librarian is the structural presence throughout — quiet, never chatty, surfaces only on milestones.
 
 ---
 
 ## Setup wizard (first launch)
 
-When you open the app the first time, it walks you through:
-
-1. **Do you have a free archive.org account?** If not, it opens the signup page in your browser. Sign up with any email — takes 30 seconds.
-
-2. **Enter your archive.org email and password.** Type them into the dialog boxes. Your password is hidden as you type, and stored encrypted in your Mac's Keychain (the same place Safari saves your website passwords).
-
-3. **The app tests your login** against archive.org and shows ✓ Login confirmed.
-
-4. **Pick where to save your books.** Default is `Books/Archive` in your home folder. You can pick anywhere.
-
-5. **Done.** The main menu appears with: Download Book, View Library, Settings, Quit.
+1. **Already have a free archive.org account?** If not, the app opens the [signup page](https://archive.org/account/signup) for you.
+2. **Enter your archive.org email and password.** Stored encrypted in macOS Keychain — never written to a plain file.
+3. **Live verification** against archive.org confirms the credentials work.
+4. **Pick where books save.** Default: `~/Books/Archive`.
+5. **Done.** Dashboard appears.
 
 ---
 
-## How to use it
+## Daily use
 
-### Download a book
+Open Archive Librarian → click **Download Book** → paste an archive.org URL → wait a few minutes. Done. The book is in your library folder as a PDF.
 
-Open the app → click **Download Book** → paste the archive.org URL → click Download.
+To find a borrowable book: go to [archive.org](https://archive.org), sign in, search, click "Borrow for 1 hour" on any book, copy the URL from your browser, paste it in.
 
-### How to find a borrowable book on archive.org
+---
 
-1. Go to [archive.org](https://archive.org) in your browser
-2. Sign in (top right)
-3. Search for the book you want
-4. On the book's page, click the orange **"Borrow for 1 hour"** button
-5. The book opens in a reader — copy the URL from your browser's address bar
-6. Paste it into the app
+## How is my password stored?
 
-### View your library
-
-Click **View Library** in the main menu. The folder opens in Finder.
-
-### Change settings
-
-Click **Settings** in the main menu to re-run the setup wizard (change credentials, change folder, etc.).
+In macOS **Keychain** — the same encrypted vault Safari uses. Never written to a plain file, never sent anywhere except archive.org during login. To remove it: open the app's Settings, click Delete next to credentials. Or run `librarian creds delete` in Terminal if you have the CLI.
 
 ---
 
 ## Troubleshooting
 
-**"Login failed" during setup**
-Your archive.org password might be wrong. Try logging in to archive.org in your browser. If that works, click Settings in the app and re-enter your password.
+**"Login failed"** — Wrong password. Verify by signing in to archive.org in your browser, then re-enter via the app's Settings.
 
-**"Cannot be opened because Apple cannot check it"**
-See step 4 above — right-click → Open the first time. This is a one-time thing.
+**"Cannot be opened because Apple cannot check it"** — Normal. Right-click → Open, one time. (Unsigned for distribution = unavoidable without paid Apple Developer ID.)
 
-**Download takes forever**
-Books are big — typical download is 3–5 minutes for a medium-quality PDF (50–150 MB). For a long book at the highest quality, it can be 10+ minutes.
+**Download takes forever** — Books are big. Typical 3–5 min for a medium-quality PDF. For really long books at high quality, 10+ min.
 
-**App won't open at all**
-Try restarting your Mac and trying again. If that doesn't work, contact whoever sent you this app.
-
-**Where are my books?**
-By default in `Books/Archive` in your home folder. Click **View Library** in the app to open the folder in Finder.
+**Where are my books?** — Default `~/Books/Archive`. Open the app's Library view → it shows the path. Click a book → opens in macOS Preview.
 
 ---
 
-## How to uninstall
+## Uninstall
 
-- Drag **Archive Librarian** from your Applications folder to the Trash
-- Open the **Keychain Access** app (in Applications → Utilities), search for "archive.org", and delete the entry
-- Your downloaded books in `Books/Archive` are yours and stay where they are
+- Drag Archive Librarian from Applications to the Trash
+- Open **Keychain Access** (Applications → Utilities), search "archive.org", delete the entry
+- Books in your library folder are yours and stay put
 
 ---
 
 ## <a name="intel-macs"></a>For Intel Macs (or developers who want to install from source)
 
-The .dmg above only works on Apple Silicon Macs (M1, M2, M3, M4). If you have an older Intel Mac, or you'd rather install from source code:
+The .dmg is built for Apple Silicon only. For Intel, or to install from source:
 
-1. Make sure Python 3.11+ is installed: `brew install python@3.13` (install [Homebrew](https://brew.sh) first if needed)
-2. Download this repo: click the green **Code** button → **Download ZIP**
+1. `brew install python@3.13` (install [Homebrew](https://brew.sh) first if needed)
+2. Download this repo's source (green Code button → Download ZIP)
 3. Unzip, open Terminal, `cd` into the unzipped folder
 4. Run `./install.sh`
+5. Use `librarian` command in Terminal
 
-After install, use the `librarian` command:
+CLI commands:
 
 ```bash
 librarian setup                        # interactive setup wizard
@@ -126,7 +120,7 @@ librarian creds delete                 # remove credentials
 
 ## Credits
 
-The actual download protocol — the part that turns archive.org's protected book pages into real PDFs — comes from [MiniGlome's Archive.org-Downloader](https://github.com/MiniGlome/Archive.org-Downloader). The macOS app wrapper, native dialogs, installer, and credential handling were built around it. See [ATTRIBUTION.md](ATTRIBUTION.md) for full details.
+The download protocol — turning archive.org's protected book pages into real PDFs — comes from [MiniGlome's Archive.org-Downloader](https://github.com/MiniGlome/Archive.org-Downloader). The native Mac wrapper, riso-aesthetic UI, dialogs, installer, and credential handling were built around it. See [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ---
 
